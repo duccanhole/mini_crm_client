@@ -1,0 +1,2 @@
+Thiết kế giao diện bám sát vào những gì Ant Design cung cấp, hạn chế custom nhất có thể.
+Sử dụng các component, token và theme mặc định của Ant Design để đảm bảo tính nhất quán.

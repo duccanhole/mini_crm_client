@@ -1,0 +1,33 @@
+{
+  "LoginPage": {
+    "title": "Login",
+    "welcome": "Welcome back!",
+    "email": "Email",
+    "password": "Password",
+    "emailRequired": "Please enter your email!",
+    "emailInvalid": "Invalid email format!",
+    "passwordRequired": "Please enter your password!",
+    "passwordMinLength": "Password must be at least 6 characters long!",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "login": "Login",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up now"
+  },
+  "RegisterPage": {
+    "title": "Create Account",
+    "welcome": "Join Mini CRM today",
+    "name": "Full Name",
+    "phone": "Phone Number",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "nameRequired": "Please enter your full name!",
+    "phoneRequired": "Please enter your phone number!",
+    "passwordRequired": "Please enter your password!",
+    "confirmPasswordRequired": "Please confirm your password!",
+    "passwordMismatch": "The passwords do not match!",
+    "register": "Register",
+    "haveAccount": "Already have an account?",
+    "signIn": "Login now"
+  }
+}

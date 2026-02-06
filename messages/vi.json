@@ -1,0 +1,33 @@
+{
+  "LoginPage": {
+    "title": "Đăng nhập",
+    "welcome": "Chào mừng bạn quay trở lại!",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "emailRequired": "Vui lòng nhập email!",
+    "emailInvalid": "Email không hợp lệ!",
+    "passwordRequired": "Vui lòng nhập mật khẩu!",
+    "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự!",
+    "rememberMe": "Ghi nhớ tôi",
+    "forgotPassword": "Quên mật khẩu?",
+    "login": "Đăng nhập",
+    "noAccount": "Bạn chưa có tài khoản?",
+    "signUp": "Đăng ký ngay"
+  },
+  "RegisterPage": {
+    "title": "Đăng ký tài khoản",
+    "welcome": "Tham gia cùng Mini CRM ngay hôm nay",
+    "name": "Họ và tên",
+    "phone": "Số điện thoại",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "nameRequired": "Vui lòng nhập họ tên!",
+    "phoneRequired": "Vui lòng nhập số điện thoại!",
+    "passwordRequired": "Vui lòng nhập mật khẩu!",
+    "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu!",
+    "passwordMismatch": "Mật khẩu xác nhận không khớp!",
+    "register": "Đăng ký",
+    "haveAccount": "Bạn đã có tài khoản?",
+    "signIn": "Đăng nhập ngay"
+  }
+}
