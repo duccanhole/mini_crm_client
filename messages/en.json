@@ -29,5 +29,13 @@
     "register": "Register",
     "haveAccount": "Already have an account?",
     "signIn": "Login now"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "leads": "Leads",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout"
   }
 }

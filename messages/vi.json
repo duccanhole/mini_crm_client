@@ -29,5 +29,13 @@
     "register": "Đăng ký",
     "haveAccount": "Bạn đã có tài khoản?",
     "signIn": "Đăng nhập ngay"
+  },
+  "navigation": {
+    "dashboard": "Bảng điều khiển",
+    "users": "Người dùng",
+    "leads": "Khách hàng tiềm năng",
+    "profile": "Trình hồ sơ",
+    "settings": "Cài đặt",
+    "logout": "Đăng xuất"
   }
 }

@@ -3,8 +3,7 @@
 import React from 'react';
 import { Layout, Space, Switch, Button, Typography } from 'antd';
 import { SunOutlined, MoonOutlined, GlobalOutlined } from '@ant-design/icons';
-import { useLocale } from 'next-intl';
-import { usePathname, useRouter } from '@/i18n/routing';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const { Header } = Layout;
 const { Text } = Typography;
@@ -15,14 +14,7 @@ interface AuthHeaderProps {
 }
 
 const AuthHeader: React.FC<AuthHeaderProps> = ({ isDarkMode = true, setDarkMode }) => {
-    const locale = useLocale();
-    const router = useRouter();
-    const pathname = usePathname();
-
-    const toggleLocale = () => {
-        const nextLocale = locale === 'vi' ? 'en' : 'vi';
-        router.replace(pathname, { locale: nextLocale });
-    };
+    const { currentLocale, toggleLanguage } = useLanguage();
 
     return (
         <Header style={{
@@ -45,9 +37,9 @@ const AuthHeader: React.FC<AuthHeaderProps> = ({ isDarkMode = true, setDarkMode 
                 <Button
                     type="text"
                     icon={<GlobalOutlined />}
-                    onClick={toggleLocale}
+                    onClick={toggleLanguage}
                 >
-                    {locale === 'vi' ? 'English' : 'Tiếng Việt'}
+                    {currentLocale === 'vi' ? 'English' : 'Tiếng Việt'}
                 </Button>
             </Space>
         </Header>
