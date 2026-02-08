@@ -37,5 +37,11 @@
     "profile": "Trình hồ sơ",
     "settings": "Cài đặt",
     "logout": "Đăng xuất"
+  },
+  "common": {
+    "confirm": "Xác nhận",
+    "cancel": "Hủy",
+    "logoutConfirm": "Bạn có chắc chắn muốn đăng xuất?",
+    "logoutTitle": "Đăng xuất"
   }
 }

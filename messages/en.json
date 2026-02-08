@@ -37,5 +37,11 @@
     "profile": "Profile",
     "settings": "Settings",
     "logout": "Logout"
+  },
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "logoutConfirm": "Are you sure you want to logout?",
+    "logoutTitle": "Logout"
   }
 }

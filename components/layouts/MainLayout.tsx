@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Layout, Menu, theme, Button, Space, Avatar, Dropdown, Typography, Drawer, Grid, type MenuProps } from 'antd';
+import { Layout, Menu, theme, Button, Space, Avatar, Dropdown, Typography, Drawer, Grid, App, type MenuProps } from 'antd';
 import { useDarkMode } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useRouter } from '@/i18n/routing';
 import {
     UserOutlined,
     LogoutOutlined,
@@ -31,13 +32,16 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' }) => {
     const { mode, toggleTheme } = useDarkMode();
     const { currentLocale, changeLanguage } = useLanguage();
+    const router = useRouter();
     const screens = useBreakpoint();
     const [drawerVisible, setDrawerVisible] = useState(false);
+    const { modal } = App.useApp();
 
     const {
         token: { colorBgContainer, borderRadiusLG, colorTextDescription, colorPrimary },
     } = theme.useToken();
     const t = useTranslations('navigation');
+    const tCommon = useTranslations('common');
 
     const menuItems: Record<'admin' | 'manager' | 'sale', MenuProps['items']> = {
         admin: [
@@ -79,6 +83,31 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
             danger: true,
         },
     ];
+
+    const handleMenuClick: MenuProps['onClick'] = (e) => {
+        switch (e.key) {
+            case 'profile':
+                router.push('/profile');
+                break;
+            case 'settings':
+                router.push('/settings');
+                break;
+            case 'logout':
+                modal.confirm({
+                    title: tCommon('logoutTitle'),
+                    content: tCommon('logoutConfirm'),
+                    okText: tCommon('confirm'),
+                    cancelText: tCommon('cancel'),
+                    onOk: () => {
+                        // Clear auth tokens if any (optional based on project)
+                        router.push('/auth/login');
+                    },
+                    okButtonProps: { danger: true },
+                    centered: true,
+                });
+                break;
+        }
+    };
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
@@ -131,7 +160,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
                         onClick={toggleTheme}
                     />
                     {screens.md && <Button type="text" icon={<BellOutlined />} />}
-                    <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+                    <Dropdown menu={{ items: userMenuItems, onClick: (e) => handleMenuClick(e) }} placement="bottomRight">
                         <Space style={{ cursor: 'pointer' }}>
                             <Avatar size="small" icon={<UserOutlined />} />
                             {screens.md && (
