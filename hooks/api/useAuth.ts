@@ -3,6 +3,7 @@ import AuthService from '@/services/auth.service';
 import { useRouter } from 'next/navigation';
 import { message } from 'antd';
 import { useLocale } from 'next-intl';
+import { LoginRequest, RegisterRequest } from '@/types/api';
 
 export const useLogin = () => {
 //   const t = useTranslations('ApiMessage');
@@ -10,7 +11,7 @@ export const useLogin = () => {
   const locale = useLocale();
 
   return useMutation({
-    mutationFn: (values: any) => AuthService.login(values),
+    mutationFn: (values: LoginRequest) => AuthService.login(values),
     onSuccess: (response) => {
       if (response.status === 200) {
         cookieStore.set('token', response.data.token);
@@ -39,23 +40,12 @@ export const useRegister = () => {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (values: any) => AuthService.register(values),
+    mutationFn: (values: RegisterRequest) => AuthService.register(values),
     onSuccess: (response) => {
       if (response.status === 200) {
         message.success(response.message || 'Registration successful');
         router.push('/auth/login');
       }
-    },
-    onError: (error: Error) => {
-      message.error(error.message || 'Registration failed');
     }
-  });
-};
-
-export const useCurrentUser = () => {
-  return useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => AuthService.getCurrentUser(),
-    enabled: !!(typeof window !== 'undefined' && localStorage.getItem('token')),
   });
 };

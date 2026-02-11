@@ -20,10 +20,14 @@
     "name": "Họ và tên",
     "phone": "Số điện thoại",
     "password": "Mật khẩu",
+    "email": "Email",
+    "emailRequired": "Vui lòng nhập email!",
+    "emailInvalid": "Email không hợp lệ!",
     "confirmPassword": "Xác nhận mật khẩu",
     "nameRequired": "Vui lòng nhập họ tên!",
     "phoneRequired": "Vui lòng nhập số điện thoại!",
     "passwordRequired": "Vui lòng nhập mật khẩu!",
+    "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự!",
     "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu!",
     "passwordMismatch": "Mật khẩu xác nhận không khớp!",
     "register": "Đăng ký",
@@ -37,6 +41,11 @@
     "profile": "Trình hồ sơ",
     "settings": "Cài đặt",
     "logout": "Đăng xuất"
+  },
+  "msg": {
+    "Email already exists": "Email đã tồn tại",
+    "Phone number already exists": "Số điện thoại đã tồn tại",
+    "Invalid credentials": "Sai tài khoản hoặc mật khẩu"
   },
   "common": {
     "confirm": "Xác nhận",

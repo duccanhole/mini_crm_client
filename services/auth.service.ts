@@ -1,13 +1,13 @@
 import apiClient from '@/lib/api-client';
-import { ApiResponse, LoginResponse, RegisterResponse } from '@/types/api';
+import { ApiResponse, LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '@/types/api';
 
 const AuthService = {
-  login: async (values: any): Promise<ApiResponse<LoginResponse>> => {
+  login: async (values: LoginRequest): Promise<ApiResponse<LoginResponse>> => {
     const response = await apiClient.post('/auth/login', values);
     return response.data;
   },
 
-  register: async (values: any): Promise<ApiResponse<RegisterResponse>> => {
+  register: async (values: RegisterRequest): Promise<ApiResponse<RegisterResponse>> => {
     const response = await apiClient.post('/auth/register', values);
     return response.data;
   },
@@ -19,8 +19,8 @@ const AuthService = {
     }
   },
 
-  getCurrentUser: async (): Promise<ApiResponse<any>> => {
-    const response = await apiClient.get('/auth/me');
+  setDefaultAccount: async () => {
+    const response = await apiClient.post('/auth/default-account');
     return response.data;
   }
 };
