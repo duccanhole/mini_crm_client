@@ -7,10 +7,12 @@ const apiClient = axios.create({
   },
 });
 
+import Cookies from 'js-cookie';
+
 // Request interceptor: Thêm token vào header
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const token = Cookies.get('token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -28,8 +30,9 @@ apiClient.interceptors.response.use(
     // Ví dụ: Tự động redirect về login nếu 401
     if (error.response?.status === 401 || error.response?.status === 403) {
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
-        // window.location.href = '/auth/login?reason=unauthorized';
+        Cookies.remove('token');
+        localStorage.removeItem('user');
+        window.location.href = '/auth/login?reason=unauthorized';
       }
     }
 

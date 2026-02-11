@@ -1,6 +1,8 @@
 import apiClient from '@/lib/api-client';
 import { ApiResponse, LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '@/types/api';
 
+import Cookies from 'js-cookie';
+
 const AuthService = {
   login: async (values: LoginRequest): Promise<ApiResponse<LoginResponse>> => {
     const response = await apiClient.post('/auth/login', values);
@@ -14,7 +16,7 @@ const AuthService = {
 
   logout: () => {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
+      Cookies.remove('token');
       localStorage.removeItem('user');
     }
   },

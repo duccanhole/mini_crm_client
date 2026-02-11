@@ -30,6 +30,7 @@
     "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự!",
     "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu!",
     "passwordMismatch": "Mật khẩu xác nhận không khớp!",
+    "phoneInvalid": "Số điện thoại không hợp lệ!",
     "register": "Đăng ký",
     "haveAccount": "Bạn đã có tài khoản?",
     "signIn": "Đăng nhập ngay"
@@ -38,19 +39,23 @@
     "dashboard": "Bảng điều khiển",
     "users": "Người dùng",
     "leads": "Khách hàng tiềm năng",
-    "profile": "Trình hồ sơ",
+    "profile": "Hồ sơ",
     "settings": "Cài đặt",
     "logout": "Đăng xuất"
   },
   "msg": {
     "Email already exists": "Email đã tồn tại",
     "Phone number already exists": "Số điện thoại đã tồn tại",
-    "Invalid credentials": "Sai tài khoản hoặc mật khẩu"
+    "Invalid credentials": "Sai tài khoản hoặc mật khẩu",
+    "Registration successful": "Đăng ký thành công, vui lòng đăng nhập để tiếp tục",
+    "unauthorized": "Vui lòng đăng nhập để tiếp tục"
   },
   "common": {
     "confirm": "Xác nhận",
     "cancel": "Hủy",
     "logoutConfirm": "Bạn có chắc chắn muốn đăng xuất?",
-    "logoutTitle": "Đăng xuất"
+    "logoutTitle": "Đăng xuất",
+    "successful": "Thao tác thành công",
+    "failed": "Thất bại, vui lòng thử lại."
   }
 }

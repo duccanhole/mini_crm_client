@@ -3,10 +3,10 @@ import { routing } from '@/i18n/routing';
 
 export function authMiddleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  
+
   // 1. Identify public routes (auth pages)
   const isPublicPage = pathname.includes('/auth/login') || pathname.includes('/auth/register');
-  
+
   // 2. Check for token in cookies
   const token = req.cookies.get('token')?.value;
 
@@ -17,9 +17,9 @@ export function authMiddleware(req: NextRequest) {
 
     // Only redirect valid app routes that are not public
     if (!isApiRoute && !isAsset) {
-        const locale = req.cookies.get('NEXT_LOCALE')?.value || routing.defaultLocale;
-        const loginUrl = new URL(`/${locale}/auth/login`, req.url);
-        return NextResponse.redirect(loginUrl);
+      const locale = req.cookies.get('NEXT_LOCALE')?.value || routing.defaultLocale;
+      const loginUrl = new URL(`/${locale}/auth/login`, req.url);
+      return NextResponse.redirect(loginUrl);
     }
   }
 

@@ -8,6 +8,7 @@ import { Link as NextLink } from '@/i18n/routing';
 import AuthHeader from '@/components/AuthHeader';
 import { useDarkMode } from '@/components/providers/ThemeProvider';
 import { useRegister } from '@/hooks/api/useAuth';
+import { VN_PHONE_REGEX } from '@/lib/validation';
 
 const { Title, Text } = Typography;
 const { Content } = Layout;
@@ -20,7 +21,7 @@ const RegisterPage = () => {
     const registerMutation = useRegister();
 
     const onFinish = async (values: any) => {
-        console.log('Success:', values);
+        console.log('Register:', values);
         try {
             setMessage('');
             await registerMutation.mutateAsync({
@@ -67,7 +68,8 @@ const RegisterPage = () => {
                                 label={t(`${TRANSLATIONS_PAGE}.phone`)}
                                 name="phone"
                                 rules={[
-                                    { required: true, message: t(`${TRANSLATIONS_PAGE}.phoneRequired`) }
+                                    { required: true, message: t(`${TRANSLATIONS_PAGE}.phoneRequired`) },
+                                    { pattern: VN_PHONE_REGEX, message: t(`${TRANSLATIONS_PAGE}.phoneInvalid`) }
                                 ]}
                             >
                                 <Input prefix={<PhoneOutlined />} placeholder={t(`${TRANSLATIONS_PAGE}.phone`)} />

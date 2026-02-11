@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { Form, Input, Button, Card, Typography, Layout, Flex, ConfigProvider, theme } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
@@ -8,16 +8,19 @@ import { Link as NextLink } from '@/i18n/routing';
 import AuthHeader from '@/components/AuthHeader';
 import { useDarkMode } from '@/components/providers/ThemeProvider';
 import { useLogin } from '@/hooks/api/useAuth';
+import { useSearchParams } from 'next/navigation';
+import { message as messageAntd } from 'antd';
 
 const { Title, Text } = Typography;
 const { Content } = Layout;
 
-const LoginPage = () => {
+const LoginFormContent = () => {
   const TRANSLATIONS_PAGE = 'LoginPage';
   const t = useTranslations();
   const { mode, toggleTheme } = useDarkMode();
   const [message, setMessage] = useState<string>('');
   const loginMutation = useLogin();
+  const searchParams = useSearchParams();
 
   const onFinish = async (values: any) => {
     setMessage('');
@@ -27,6 +30,13 @@ const LoginPage = () => {
       setMessage(error.message);
     }
   };
+
+  useEffect(() => {
+    const reason = searchParams.get('reason');
+    if (reason === 'unauthorized') {
+      messageAntd.error(t('msg.unauthorized'));
+    }
+  }, [searchParams]);
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -87,5 +97,11 @@ const LoginPage = () => {
     </Layout>
   );
 };
+
+const LoginPage = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <LoginFormContent />
+  </Suspense>
+);
 
 export default LoginPage;

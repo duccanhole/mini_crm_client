@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout, Menu, theme, Button, Space, Avatar, Dropdown, Typography, Drawer, Grid, App, type MenuProps } from 'antd';
 import { useDarkMode } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -19,6 +19,7 @@ import {
     MenuOutlined
 } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
+import AuthService from '@/services/auth.service';
 
 const { Header, Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -42,6 +43,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
     } = theme.useToken();
     const t = useTranslations('navigation');
     const tCommon = useTranslations('common');
+
+    const [userName, setUserName] = useState('User');
+    const [userEmail, setUserEmail] = useState('');
+
 
     const menuItems: Record<'admin' | 'manager' | 'sale', MenuProps['items']> = {
         admin: [
@@ -99,8 +104,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
                     okText: tCommon('confirm'),
                     cancelText: tCommon('cancel'),
                     onOk: () => {
-                        // Clear auth tokens if any (optional based on project)
-                        router.push('/auth/login');
+                        console.log('logout, redirect to', `/auth/login`)
+                        AuthService.logout();
+                        router.push(`/auth/login`);
                     },
                     okButtonProps: { danger: true },
                     centered: true,
@@ -108,6 +114,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
                 break;
         }
     };
+
+    useEffect(() => {
+        const user = localStorage.getItem('user');
+        if (user) {
+            const { name, email } = JSON.parse(user);
+            setUserName(name);
+            setUserEmail(email);
+        }
+    }, []);
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
@@ -165,8 +180,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
                             <Avatar size="small" icon={<UserOutlined />} />
                             {screens.md && (
                                 <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
-                                    <Text strong>Admin</Text>
-                                    <Text type="secondary" style={{ fontSize: '10px' }}>{userRole.toUpperCase()}</Text>
+                                    <Text strong>{userName}</Text>
+                                    <Text type="secondary" style={{ fontSize: '10px' }}>{userEmail}</Text>
                                 </div>
                             )}
                         </Space>
