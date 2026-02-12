@@ -16,7 +16,8 @@ import {
     SunOutlined,
     MoonOutlined,
     GlobalOutlined,
-    MenuOutlined
+    MenuOutlined,
+    KeyOutlined
 } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
 import AuthService from '@/services/auth.service';
@@ -52,15 +53,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
         admin: [
             {
                 key: 'user',
-                label: 'user',
+                label: t('users'),
             },
             {
                 key: 'customer',
-                label: 'customer',
+                label: t('customers'),
             },
             {
                 key: 'lead',
-                label: 'lead',
+                label: t('leads'),
             },
         ],
         manager: [],
@@ -74,9 +75,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
             label: t('profile'),
         },
         {
-            key: 'settings',
-            icon: <SettingOutlined />,
-            label: t('settings'),
+            key: 'change-password',
+            icon: <KeyOutlined />,
+            label: t('change-password'),
         },
         {
             type: 'divider',

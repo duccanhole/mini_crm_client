@@ -39,23 +39,30 @@
     "dashboard": "Bảng điều khiển",
     "users": "Người dùng",
     "leads": "Khách hàng tiềm năng",
+    "customers": "Khách hàng",
     "profile": "Hồ sơ",
     "settings": "Cài đặt",
-    "logout": "Đăng xuất"
+    "logout": "Đăng xuất",
+    "change-password": "Đổi mật khẩu"
   },
   "msg": {
     "Email already exists": "Email đã tồn tại",
     "Phone number already exists": "Số điện thoại đã tồn tại",
     "Invalid credentials": "Sai tài khoản hoặc mật khẩu",
     "Registration successful": "Đăng ký thành công, vui lòng đăng nhập để tiếp tục",
-    "unauthorized": "Vui lòng đăng nhập để tiếp tục"
+    "unauthorized": "Vui lòng đăng nhập để tiếp tục",
+    "permission denied": "Bạn không có quyền truy cập trang này."
   },
   "common": {
+    "add new": "Thêm mới",
+    "edit": "Sửa",
+    "delete": "Xóa",
     "confirm": "Xác nhận",
     "cancel": "Hủy",
     "logoutConfirm": "Bạn có chắc chắn muốn đăng xuất?",
     "logoutTitle": "Đăng xuất",
     "successful": "Thao tác thành công",
-    "failed": "Thất bại, vui lòng thử lại."
+    "failed": "Thất bại, vui lòng thử lại.",
+    "backHome": "Trở về trang chủ"
   }
 }

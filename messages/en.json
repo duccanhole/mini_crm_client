@@ -39,23 +39,30 @@
     "dashboard": "Dashboard",
     "users": "Users",
     "leads": "Leads",
+    "customers": "Customers",
     "profile": "Profile",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "change-password": "Change Password"
   },
   "msg": {
     "Email already exists": "Email already exists",
     "Phone number already exists": "Phone number already exists",
     "Invalid credentials": "Invalid credentials",
     "Registration successful": "Registration successful, please login to continue",
-    "unauthorized": "Please login to continue"
+    "unauthorized": "Please login to continue",
+    "permission denied": "You do not have permission to access this page."
   },
   "common": {
+    "add new": "Add New",
+    "edit": "Edit",
+    "delete": "Delete",
     "confirm": "Confirm",
     "cancel": "Cancel",
     "logoutConfirm": "Are you sure you want to logout?",
     "logoutTitle": "Logout",
     "successful": "Successful",
-    "failed": "Failed, please try again."
+    "failed": "Failed, please try again.",
+    "backHome": "Back to Home"
   }
 }

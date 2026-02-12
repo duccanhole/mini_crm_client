@@ -1,88 +1,110 @@
 'use client'
 
-import React from 'react';
-import { Table, Tag, Space, Typography } from 'antd';
+import React, { useState } from 'react';
+import { Table, Tag, Space, Typography, Button } from 'antd';
+import { useGetUsers } from '@/hooks/api/useUser';
+import { User } from '@/types/model';
+import { SearchQueryParams } from '@/types/api';
 
 const { Title } = Typography;
 
-const columns = [
-    {
-        title: 'Name',
-        dataIndex: 'name',
-        key: 'name',
-        render: (text: string) => <a>{text}</a>,
-    },
-    {
-        title: 'Age',
-        dataIndex: 'age',
-        key: 'age',
-    },
-    {
-        title: 'Address',
-        dataIndex: 'address',
-        key: 'address',
-    },
-    {
-        title: 'Tags',
-        key: 'tags',
-        dataIndex: 'tags',
-        render: (tags: string[]) => (
-            <>
-                {tags.map((tag) => {
-                    let color = tag.length > 5 ? 'geekblue' : 'green';
-                    if (tag === 'loser') {
-                        color = 'volcano';
-                    }
-                    return (
-                        <Tag color={color} key={tag}>
-                            {tag.toUpperCase()}
-                        </Tag>
-                    );
-                })}
-            </>
-        ),
-    },
-    {
-        title: 'Action',
-        key: 'action',
-        render: (_: any, record: any) => (
-            <Space size="middle">
-                <a>Invite {record.name}</a>
-                <a>Delete</a>
-            </Space>
-        ),
-    },
-];
-
-const data = [
-    {
-        key: '1',
-        name: 'John Brown',
-        age: 32,
-        address: 'New York No. 1 Lake Park',
-        tags: ['nice', 'developer'],
-    },
-    {
-        key: '2',
-        name: 'Jim Green',
-        age: 42,
-        address: 'London No. 1 Lake Park',
-        tags: ['loser'],
-    },
-    {
-        key: '3',
-        name: 'Joe Black',
-        age: 32,
-        address: 'Sydney No. 1 Lake Park',
-        tags: ['cool', 'teacher'],
-    },
-];
-
 const UsersPage = () => {
+    const [pagination, setPagination] = useState<SearchQueryParams>({
+        page: 0,
+        size: 10,
+    });
+
+    const { data: usersData, isLoading } = useGetUsers(pagination);
+
+    const columns: any[] = [
+        {
+            title: 'Name',
+            dataIndex: 'name',
+            fixed: 'left',
+            key: 'name',
+            render: (text: string) => <a>{text}</a>,
+            width: 150,
+        },
+        {
+            title: 'Email',
+            dataIndex: 'email',
+            key: 'email',
+            width: 250,
+        },
+        {
+            title: 'Phone',
+            dataIndex: 'phone',
+            key: 'phone', // Note: User model has 'phone', check if response actually has it or 'phoneNumber'
+            render: (text: string, record: User) => text || (record as any).phoneNumber || '-',
+            width: 150,
+        },
+        {
+            title: 'Role',
+            key: 'role',
+            dataIndex: 'role',
+            width: 150,
+            render: (role: string) => {
+                let color = 'blue';
+                switch (role) {
+                    case 'admin':
+                        color = 'purple';
+                        break;
+                    case 'manager':
+                        color = 'orange';
+                        break;
+                    default:
+                        color = 'blue';
+                        break;
+                }
+                return (
+                    <Tag color={color} key={role}>
+                        {role ? role.toUpperCase() : 'USER'}
+                    </Tag>
+                );
+            },
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            width: 300,
+            render: (_: any, record: User) => (
+                <Space size="middle">
+                    <a>Edit</a>
+                    <a style={{ color: 'red' }}>Delete</a>
+                    <a style={{ color: 'orange' }}>Reset Password</a>
+                </Space>
+            ),
+        },
+    ];
+
+    const handleTableChange = (newPagination: any) => {
+        setPagination({
+            ...pagination,
+            page: newPagination.current - 1, // AntD is 1-based, API is likely 0-based
+            size: newPagination.pageSize,
+        });
+    };
+
     return (
         <div>
-            <Title level={2}>Quản lý người dùng</Title>
-            <Table columns={columns} dataSource={data} />
+            <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'end', width: '100%' }}>
+                <Button type="primary">Add User</Button>
+            </div>
+
+            <Table
+                columns={columns}
+                dataSource={usersData?.data?.content || []}
+                rowKey="id"
+                loading={isLoading}
+                pagination={{
+                    current: (usersData?.data?.number || 0) + 1,
+                    pageSize: usersData?.data?.size || 10,
+                    total: usersData?.data?.totalElements || 0,
+                    showSizeChanger: true,
+                }}
+                onChange={handleTableChange}
+                scroll={{ x: 'max-content' }}
+            />
         </div>
     )
 }

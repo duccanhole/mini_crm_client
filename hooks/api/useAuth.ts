@@ -19,6 +19,7 @@ export const useLogin = () => {
       if (response.status === 200) {
         // Set cookies with js-cookie
         Cookies.set('token', response.data.token, { expires: 7 }); // Expires in 7 days
+        Cookies.set('role', response.data.role, { expires: 7 });
         // Store user info in localStorage is fine for UI, or keep in cookie too. Let's keep in localStorage for simplicity or update to Cookie if needed. 
         // For now, let's stick to localStorage for user object as it might be large, but token MUST be in cookie for middleware.
         localStorage.setItem('user', JSON.stringify(response.data));

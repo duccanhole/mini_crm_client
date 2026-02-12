@@ -46,3 +46,14 @@ export interface Activity {
     createdAt: string;
     createdBy: User;
 }
+
+export interface Notification {
+    id: string | number;
+    user: User;
+    type: string;
+    title: string;
+    message: string;
+    isRead: boolean;
+    metaData: string;
+    createdAt: string;
+}

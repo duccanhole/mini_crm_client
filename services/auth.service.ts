@@ -17,6 +17,7 @@ const AuthService = {
   logout: () => {
     if (typeof window !== 'undefined') {
       Cookies.remove('token');
+      Cookies.remove('role');
       localStorage.removeItem('user');
     }
   },
