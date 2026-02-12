@@ -35,6 +35,16 @@
     "haveAccount": "Already have an account?",
     "signIn": "Login now"
   },
+  "UsersPage": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "role": "Role",
+    "action": "Action",
+    "resetPassword": "Reset Password",
+    "resetPasswordTitle": "Reset Password",
+    "resetPasswordConfirm": "Are you sure you want to reset this user's password?"
+  },
   "navigation": {
     "dashboard": "Dashboard",
     "users": "Users",
@@ -54,7 +64,7 @@
     "permission denied": "You do not have permission to access this page."
   },
   "common": {
-    "add new": "Add New",
+    "add new": "Add new",
     "edit": "Edit",
     "delete": "Delete",
     "confirm": "Confirm",
@@ -63,6 +73,9 @@
     "logoutTitle": "Logout",
     "successful": "Successful",
     "failed": "Failed, please try again.",
-    "backHome": "Back to Home"
+    "backHome": "Back to Home",
+    "deleteTitle": "Delete",
+    "deleteConfirm": "Are you sure you want to delete this?",
+    "processing": "Processing..."
   }
 }

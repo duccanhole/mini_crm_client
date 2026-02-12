@@ -23,19 +23,24 @@ const UsersService = {
     return response.data;
   },
 
+  delete: async (id: string): Promise<ApiResponse<null>> => {
+    const response = await apiClient.delete(`/users/${id}`);
+    return response.data;
+  },
+
   // Note: Differentiating between 'update' (users) and 'updateUser' (user) as requested
   updateUser: async (id: string, values: any): Promise<ApiResponse<null>> => {
-    const response = await apiClient.put(`/user/${id}`, values);
+    const response = await apiClient.put(`/users/${id}`, values);
     return response.data;
   },
 
   changePassword: async (id: string, values: any): Promise<ApiResponse<null>> => {
-    const response = await apiClient.put(`/user/${id}/change-password`, values);
+    const response = await apiClient.put(`/users/${id}/change-password`, values);
     return response.data;
   },
 
   resetPassword: async (id: string): Promise<ApiResponse<null>> => {
-    const response = await apiClient.put(`/user/${id}/reset-password`);
+    const response = await apiClient.put(`/users/${id}/reset-password`);
     return response.data;
   }
 };

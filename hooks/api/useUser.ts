@@ -32,7 +32,7 @@ export const useGetUser = (id: string, enabled: boolean = true) => {
 
 // Hook to create a new user
 export const useCreateUser = () => {
-    const t = useTranslations('common');
+  const t = useTranslations('common');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -49,7 +49,7 @@ export const useCreateUser = () => {
 
 // Hook to update a user (Admin function usually)
 export const useUpdateUser = () => {
-    const t = useTranslations('common');
+  const t = useTranslations('common');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -67,7 +67,7 @@ export const useUpdateUser = () => {
 
 // Hook to update a user profile (e.g., self-update from user perspective)
 export const useUpdateUserProfile = () => {
-    const t = useTranslations('common');
+  const t = useTranslations('common');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -82,9 +82,22 @@ export const useUpdateUserProfile = () => {
   });
 };
 
+export const useDeleteUser = () => {
+  const t = useTranslations('common');
+  return useMutation({
+    mutationFn: (id: string) => UsersService.delete(id),
+    onSuccess: () => {
+      message.success(t('successful'));
+    },
+    onError: (error: any) => {
+      message.error(error.message || t('failed'));
+    },
+  });
+};
+
 // Hook to change password
 export const useChangePassword = () => {
-    const t = useTranslations('common');
+  const t = useTranslations('common');
   return useMutation({
     mutationFn: ({ id, values }: { id: string; values: any }) => UsersService.changePassword(id, values),
     onSuccess: () => {
@@ -98,7 +111,7 @@ export const useChangePassword = () => {
 
 // Hook to reset password
 export const useResetPassword = () => {
-    const t = useTranslations('common');
+  const t = useTranslations('common');
   return useMutation({
     mutationFn: (id: string) => UsersService.resetPassword(id),
     onSuccess: () => {
