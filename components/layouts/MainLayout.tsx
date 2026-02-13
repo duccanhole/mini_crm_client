@@ -98,6 +98,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
             case 'settings':
                 router.push('/settings');
                 break;
+            case 'user':
+                router.push('/admin/users');
+                break;
+            case 'customer':
+                router.push('/admin/customers');
+                break;
+            case 'lead':
+                router.push('/admin/leads');
+                break;
             case 'logout':
                 modal.confirm({
                     title: tCommon('logoutTitle'),
@@ -158,6 +167,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
                             defaultSelectedKeys={['dashboard']}
                             items={menuItems[userRole]}
                             style={{ borderBottom: 'none', minWidth: '300px' }}
+                            onClick={handleMenuClick}
                         />
                     )}
                 </Space>
@@ -202,7 +212,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
                     mode="inline"
                     defaultSelectedKeys={['dashboard']}
                     items={menuItems[userRole]}
-                    onClick={() => setDrawerVisible(false)}
+                    onClick={(e) => {
+                        handleMenuClick(e);
+                        setDrawerVisible(false);
+                    }}
                 />
             </Drawer>
 

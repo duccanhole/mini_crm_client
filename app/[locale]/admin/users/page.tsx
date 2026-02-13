@@ -1,12 +1,13 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, Tag, Space, Typography, Button, App, message } from 'antd';
 import { useDeleteUser, useGetUsers, useResetPassword, userKeys } from '@/hooks/api/useUser';
 import { User } from '@/types/model';
 import { SearchQueryParams } from '@/types/api';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from '@/i18n/routing';
 
 const UsersPage = () => {
     const [pagination, setPagination] = useState<SearchQueryParams>({
@@ -14,10 +15,13 @@ const UsersPage = () => {
         size: 10,
     });
 
+    const [userEmail, setUserEmail] = useState('')
+
     const tUsersPage = useTranslations('UsersPage');
     const tCommon = useTranslations('common');
 
     const queryClient = useQueryClient();
+    const router = useRouter();
     const { data: usersData, isLoading } = useGetUsers(pagination);
     const deleteUserMutation = useDeleteUser();
     const resetPasswordMutation = useResetPassword();
@@ -28,7 +32,7 @@ const UsersPage = () => {
             dataIndex: 'name',
             fixed: 'left',
             key: 'name',
-            render: (text: string) => <a>{text}</a>,
+            render: (text: string, record: User) => <a onClick={() => router.push(`/admin/users/${record.id}`)}>{text}</a>,
             width: 150,
         },
         {
@@ -70,13 +74,38 @@ const UsersPage = () => {
             },
         },
         {
+            title: tUsersPage('status'),
+            key: 'status',
+            dataIndex: 'status',
+            width: 150,
+            render: (status: string) => {
+                let color = 'blue';
+                switch (status) {
+                    case 'active':
+                        color = 'green';
+                        break;
+                    case 'inactive':
+                        color = 'red';
+                        break;
+                    default:
+                        color = 'blue';
+                        break;
+                }
+                return (
+                    <Tag color={color} key={status}>
+                        {status ? status.toUpperCase() : 'USER'}
+                    </Tag>
+                );
+            },
+        },
+        {
             title: tUsersPage('action'),
             key: 'action',
             width: 300,
             render: (_: any, record: User) => (
                 <Space size="middle">
-                    <a>{tCommon('edit')}</a>
-                    <a style={{ color: 'red' }} onClick={() => handleDelete(record.id as string)}>{tCommon('delete')}</a>
+                    <a onClick={() => router.push(`/admin/users/${record.id}`)}>{tCommon('edit')}</a>
+                    {userEmail !== record.email && <a style={{ color: 'red' }} onClick={() => handleDelete(record.id as string)}>{tCommon('delete')}</a>}
                     <a style={{ color: 'orange' }} onClick={() => handleResetPassword(record.id as string)}>{tUsersPage('resetPassword')}</a>
                 </Space>
             ),
@@ -139,10 +168,18 @@ const UsersPage = () => {
         });
     };
 
+    useEffect(() => {
+        const user = localStorage.getItem('user');
+        if (user) {
+            const { email } = JSON.parse(user);
+            setUserEmail(email);
+        }
+    }, []);
+
     return (
         <div>
             <div className='flex justify-end !mb-4'>
-                <Button type="primary">{tCommon('add new')}</Button>
+                <Button type="primary" onClick={() => router.push('/admin/users/new')}>{tCommon('add new')}</Button>
             </div>
 
             <Table

@@ -30,7 +30,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   name: string;
   email: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   password: string;
   confirmPassword: string;
   role: string;
@@ -72,24 +72,24 @@ export interface UserDTO {
 }
 
 export interface LeadDTO {
-    customerId?: string | number;
-    value?: number;
-    status?: string;
-    assignedToId?: string | number;
-    expectedCloseDate?: string;
+  customerId?: string | number;
+  value?: number;
+  status?: string;
+  assignedToId?: string | number;
+  expectedCloseDate?: string;
 }
 
 export interface CustomerDTO {
-    name?: string;
-    email?: string;
-    phone?: string;
-    company?: string;
-    notes?: string;
-    saleId?: string | number;
+  name?: string;
+  email?: string;
+  phone?: string;
+  company?: string;
+  notes?: string;
+  saleId?: string | number;
 }
 
 export interface ActivityDTO {
-    leadId?: string | number;
-    type?: string;
-    description?: string;
+  leadId?: string | number;
+  type?: string;
+  description?: string;
 }

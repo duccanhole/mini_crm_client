@@ -9,6 +9,7 @@ import AuthHeader from '@/components/AuthHeader';
 import { useDarkMode } from '@/components/providers/ThemeProvider';
 import { useRegister } from '@/hooks/api/useAuth';
 import { VN_PHONE_REGEX } from '@/lib/validation';
+import { RegisterRequest } from '@/types/api';
 
 const { Title, Text } = Typography;
 const { Content } = Layout;
@@ -24,14 +25,17 @@ const RegisterPage = () => {
         console.log('Register:', values);
         try {
             setMessage('');
-            await registerMutation.mutateAsync({
+            const registerData: RegisterRequest = {
                 name: values.name,
-                phoneNumber: values.phone,
                 email: values.email,
                 password: values.password,
                 confirmPassword: values.confirmPassword,
                 role: 'sale'
-            });
+            };
+            if (values.phone) {
+                registerData.phoneNumber = values.phone;
+            }
+            await registerMutation.mutateAsync(registerData);
         } catch (error: any) {
             setMessage(error.message);
         }
@@ -68,7 +72,7 @@ const RegisterPage = () => {
                                 label={t(`${TRANSLATIONS_PAGE}.phone`)}
                                 name="phone"
                                 rules={[
-                                    { required: true, message: t(`${TRANSLATIONS_PAGE}.phoneRequired`) },
+                                    // { required: true, message: t(`${TRANSLATIONS_PAGE}.phoneRequired`) },
                                     { pattern: VN_PHONE_REGEX, message: t(`${TRANSLATIONS_PAGE}.phoneInvalid`) }
                                 ]}
                             >

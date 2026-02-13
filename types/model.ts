@@ -4,6 +4,7 @@ export interface User {
     email: string;
     phone: string;
     role: string;
+    status: string;
 }
 
 export interface Customer {

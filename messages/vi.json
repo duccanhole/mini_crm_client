@@ -41,9 +41,19 @@
     "phone": "Số điện thoại",
     "role": "Vai trò",
     "action": "Hành động",
+    "status": "Trạng thái",
     "resetPassword": "Reset mật khẩu",
     "resetPasswordTitle": "Reset mật khẩu",
     "resetPasswordConfirm": "Bạn có chắc chắn muốn reset mật khẩu này?"
+  },
+  "CustomersPage": {
+    "name": "Tên khách hàng",
+    "email": "Email",
+    "phone": "Số điện thoại",
+    "company": "Công ty",
+    "notes": "Ghi chú",
+    "saleId": "Nhân viên phụ trách",
+    "action": "Hành động"
   },
   "navigation": {
     "dashboard": "Bảng điều khiển",
@@ -74,6 +84,7 @@
     "successful": "Thao tác thành công",
     "failed": "Thất bại, vui lòng thử lại.",
     "backHome": "Trở về trang chủ",
+    "back": "Quay lại",
     "deleteTitle": "Xóa",
     "deleteConfirm": "Bạn có chắc chắn muốn xóa?",
     "processing": "Đang xử lý, vui lòng đợi ..."

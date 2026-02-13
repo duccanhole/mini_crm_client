@@ -41,9 +41,19 @@
     "phone": "Phone",
     "role": "Role",
     "action": "Action",
+    "status": "Status",
     "resetPassword": "Reset Password",
     "resetPasswordTitle": "Reset Password",
     "resetPasswordConfirm": "Are you sure you want to reset this user's password?"
+  },
+  "CustomersPage": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "company": "Company",
+    "notes": "Notes",
+    "saleId": "Sale Responsible",
+    "action": "Action"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -73,6 +83,7 @@
     "logoutTitle": "Logout",
     "successful": "Successful",
     "failed": "Failed, please try again.",
+    "back": "Back",
     "backHome": "Back to Home",
     "deleteTitle": "Delete",
     "deleteConfirm": "Are you sure you want to delete this?",
