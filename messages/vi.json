@@ -55,6 +55,32 @@
     "saleId": "Nhân viên phụ trách",
     "action": "Hành động"
   },
+  "LeadsPage": {
+    "customer": "Khách hàng",
+    "value": "Giá trị",
+    "status": "Trạng thái",
+    "assignedTo": "Nhân viên phụ trách",
+    "expectedCloseDate": "Ngày kết thúc dự kiến",
+    "createdAt": "Ngày tạo",
+    "action": "Hành động"
+  },
+  "ProfilePage": {
+    "title": "Thông tin cá nhân",
+    "name": "Họ và tên",
+    "email": "Email",
+    "phone": "Số điện thoại",
+    "role": "Vai trò",
+    "status": "Trạng thái",
+    "updateStatus": "Cập nhật thông tin"
+  },
+  "ChangePasswordPage": {
+    "title": "Đổi mật khẩu",
+    "oldPassword": "Mật khẩu cũ",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu mới",
+    "oldPasswordRequired": "Vui lòng nhập mật khẩu cũ!",
+    "newPasswordRequired": "Vui lòng nhập mật khẩu mới!"
+  },
   "navigation": {
     "dashboard": "Bảng điều khiển",
     "users": "Người dùng",
@@ -79,6 +105,7 @@
     "delete": "Xóa",
     "confirm": "Xác nhận",
     "cancel": "Hủy",
+    "save": "Lưu",
     "logoutConfirm": "Bạn có chắc chắn muốn đăng xuất?",
     "logoutTitle": "Đăng xuất",
     "successful": "Thao tác thành công",

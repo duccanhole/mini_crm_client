@@ -1,15 +1,19 @@
 'use client';
 
-import React from 'react';
-import { Form, Input, Button, Card, Space, App } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, Card, Space, App, Select } from 'antd';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { useCreateCustomer } from '@/hooks/api/useCustomer';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { CustomerDTO } from '@/types/api';
 import { VN_PHONE_REGEX } from '@/lib/validation';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useGetUsers } from '@/hooks/api/useUser';
 
 const { TextArea } = Input;
+
+const Option = Select.Option;
 
 const CustomerCreatePage = () => {
     const router = useRouter();
@@ -17,6 +21,13 @@ const CustomerCreatePage = () => {
     const tCommon = useTranslations('common');
     const tRegister = useTranslations('RegisterPage');
     const [form] = Form.useForm();
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearchTerm = useDebounce(searchTerm, 500);
+    const { data: usersResponse, isLoading: isFetchingUsers } = useGetUsers({
+        size: 1000,
+        search: debouncedSearchTerm
+    });
 
     const createMutation = useCreateCustomer();
 
@@ -35,6 +46,10 @@ const CustomerCreatePage = () => {
             console.error('Create failed:', error);
         }
     };
+
+    const onSearchSale = (value: string) => {
+        setSearchTerm(value);
+    }
 
     return (
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
@@ -94,6 +109,24 @@ const CustomerCreatePage = () => {
                     >
                         <Input placeholder={t('company')} />
                     </Form.Item>
+
+                    <Form.Item
+                        name="saleId"
+                        label={t('saleId')}
+                    >
+                        <Select
+                            showSearch={{ filterOption: false, onSearch: onSearchSale }}
+                            placeholder={t('saleId')}
+                            loading={isFetchingUsers}
+                        >
+                            {usersResponse?.data?.content?.map((user: any) => (
+                                <Option key={user.id} value={user.id}>
+                                    {user.name} ({user.email})
+                                </Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+
 
                     <Form.Item
                         name="notes"

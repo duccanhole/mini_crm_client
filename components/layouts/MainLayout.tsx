@@ -93,10 +93,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
     const handleMenuClick: MenuProps['onClick'] = (e) => {
         switch (e.key) {
             case 'profile':
-                router.push('/profile');
+                router.push(`/${userRole}/profile`);
                 break;
             case 'settings':
-                router.push('/settings');
+                router.push(`/${currentLocale}/settings`);
+                break;
+            case 'change-password':
+                router.push(`/${userRole}/change-password`);
                 break;
             case 'user':
                 router.push('/admin/users');

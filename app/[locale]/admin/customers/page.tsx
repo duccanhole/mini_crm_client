@@ -53,6 +53,13 @@ const CustomersPage = () => {
             render: (text: string) => text || '-',
         },
         {
+            title: tCustomersPage('note'),
+            dataIndex: 'note',
+            key: 'note',
+            width: 250,
+            render: (text: string) => text || '-',
+        },
+        {
             title: tCustomersPage('saleId'),
             dataIndex: 'sale',
             key: 'sale',

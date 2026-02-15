@@ -55,6 +55,33 @@
     "saleId": "Sale Responsible",
     "action": "Action"
   },
+  "LeadsPage": {
+    "customer": "Customer",
+    "value": "Value",
+    "status": "Status",
+    "assignedTo": "Assigned To",
+    "expectedCloseDate": "Expected Close Date",
+    "createdAt": "Created At",
+    "action": "Action"
+  },
+  "ProfilePage": {
+    "title": "Profile Information",
+    "name": "Full Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "role": "Role",
+    "status": "Status",
+    "save": "Save",
+    "updateStatus": "Update Profile"
+  },
+  "ChangePasswordPage": {
+    "title": "Change Password",
+    "oldPassword": "Old Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "oldPasswordRequired": "Please enter your old password!",
+    "newPasswordRequired": "Please enter your new password!"
+  },
   "navigation": {
     "dashboard": "Dashboard",
     "users": "Users",
