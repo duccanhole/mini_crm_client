@@ -106,6 +106,7 @@
     "delete": "Delete",
     "confirm": "Confirm",
     "cancel": "Cancel",
+    "refresh": "Refresh",
     "logoutConfirm": "Are you sure you want to logout?",
     "logoutTitle": "Logout",
     "successful": "Successful",

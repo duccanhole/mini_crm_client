@@ -1,2 +1,29 @@
-Thiết kế giao diện bám sát vào những gì Ant Design cung cấp, hạn chế custom nhất có thể.
-Sử dụng các component, token và theme mặc định của Ant Design để đảm bảo tính nhất quán.
+# Tech Stack & UI Framework
+- Framework: Next.js (App Router), TypeScript.
+- UI Library: Ant Design (Antd) là chính. 
+- **Antd First Philosophy**: Tuân thủ tuyệt đối ngôn ngữ thiết kế của Ant Design.
+    - Sử dụng tối đa các component có sẵn: `Flex`, `Space`, `Row`, `Col` cho layout; `Typography` cho văn bản; `Badge`, `Tag`, `Avatar` cho thông tin bổ trợ.
+    - Hạn chế sử dụng thẻ `div` kèm class Tailwind cho cấu trúc layout trừ khi Antd không đáp ứng được.
+- **Design Tokens**: Luôn sử dụng `theme.useToken()` để lấy các giá trị thiết kế (màu sắc, bo góc, spacing). TUYỆT ĐỐI KHÔNG hardcode mã màu hoặc sử dụng các utility class của Tailwind cho các giá trị này (ví dụ: dùng `token.colorPrimary` thay vì `text-blue-500` hay `#1677ff`).
+- Styling: Sử dụng Tailwind CSS bổ trợ cho các hiệu ứng (hover, transition, shadow) nhưng không dùng để thay thế cấu trúc layout của Antd.
+- Icons: Sử dụng `@ant-design/icons`.
+
+# Project Structure & Conventions
+- Components: 
+    - `components/pages/`: Chứa các component lớn tương ứng với một trang.
+    - `components/shared/`: Các component dùng chung.
+    - `components/[entity]/`: Các component đặc thù của entity đó (e.g., `components/leads/`).
+- API Hooks: Luôn sử dụng React Query (TanStack Query) đặt trong `hooks/api/`. Theo pattern: `use[Entity].ts` (e.g., `useUser`, `useLead`).
+- Types: Định nghĩa tập trung tại `types/model.ts`.
+- I18n: Sử dụng `next-intl`. Tất cả text hiển thị phải qua hook `useTranslations` và định nghĩa trong `messages/*.json`.
+
+# Coding Rules
+- Luôn sử dụng `'use client';` cho các component giao diện có tương tác hoặc dùng hooks của Antd.
+- Client fetching: Ưu tiên dùng các custom hooks từ `hooks/api/` thay vì gọi axios trực tiếp trong component.
+- Biến: Sử dụng camelCase cho biến/function, PascalCase cho Components.
+- Naming: Component file name nên trùng với export name (e.g., `card-view.tsx` export `LeadCardView`).
+
+# Best Practices
+- Ưu tiên sử dụng các util có sẵn trong `lib/`.
+- Validate dữ liệu: Sử dụng regex từ `lib/validation.ts`.
+- Data display: Sử dụng `dayjs` để format thời gian và `Intl.NumberFormat` cho tiền tệ (VND).
