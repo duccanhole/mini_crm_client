@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Card,
     Typography,
@@ -12,8 +12,7 @@ import {
     theme,
     Flex,
     Badge,
-    Skeleton,
-    Divider
+    Spin
 } from 'antd';
 import {
     UserOutlined,
@@ -21,11 +20,34 @@ import {
     PhoneOutlined,
     MailOutlined,
     MoreOutlined,
-    EnvironmentOutlined
+    EnvironmentOutlined,
+    HolderOutlined
 } from '@ant-design/icons';
 import { Lead } from '@/types/model';
 import { useTranslations } from 'next-intl';
 import dayjs from 'dayjs';
+import {
+    DndContext,
+    closestCorners,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragOverlay,
+    defaultDropAnimationSideEffects,
+    DragStartEvent,
+    DragOverEvent,
+    DragEndEvent,
+    useDroppable,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const { Text } = Typography;
 
@@ -35,7 +57,12 @@ interface LeadCardViewProps {
     onCreate?: () => void;
 }
 
-const LeadCard = ({ lead }: { lead: Lead }) => {
+const LeadCard = ({ lead, isOverlay = false, dragAttributes, dragListeners }: {
+    lead: Lead,
+    isOverlay?: boolean,
+    dragAttributes?: any,
+    dragListeners?: any
+}) => {
     const t = useTranslations('LeadsPage');
     const { token } = theme.useToken();
 
@@ -43,31 +70,54 @@ const LeadCard = ({ lead }: { lead: Lead }) => {
         <Card
             hoverable
             size="small"
-            style={{ borderRadius: token.borderRadiusLG, border: `1px solid ${token.colorBorderSecondary}` }}
+            style={{
+                borderRadius: token.borderRadiusLG,
+                border: `1px solid ${token.colorBorderSecondary}`,
+                opacity: isOverlay ? 0.8 : 1,
+            }}
             styles={{
                 body: { padding: token.paddingMD },
                 header: { padding: `0 ${token.paddingMD}px`, minHeight: 48 }
             }}
             className="group"
             title={
-                <Flex vertical gap={2} style={{ padding: `${token.paddingXS}px 0` }}>
-                    <Text strong className="truncate block max-w-[250px]">
-                        {lead.customer.name}
-                    </Text>
-                    <Space size={4}>
-                        {
-                            lead.customer.company ? (
-                                <Space size={4}>
-                                    <EnvironmentOutlined style={{ fontSize: token.fontSizeSM, color: token.colorTextDescription }} />
-                                    <Text type="secondary" style={{ fontSize: 11 }}>
-                                        {lead.customer.company}
-                                    </Text>
-                                </Space>
-                            ) : (
-                                <Text style={{ fontSize: 11 }}>-</Text>
-                            )
-                        }
-                    </Space>
+                <Flex align="center" gap={token.marginXS}>
+                    <Flex vertical gap={2} style={{ padding: `${token.paddingXS}px 0`, flex: 1, overflow: 'hidden' }}>
+                        <Text strong className="truncate block">
+                            {lead.customer.name}
+                        </Text>
+                        <Space size={4}>
+                            {
+                                lead.customer.company ? (
+                                    <Space size={4}>
+                                        <EnvironmentOutlined style={{ fontSize: token.fontSizeSM, color: token.colorTextDescription }} />
+                                        <Text type="secondary" style={{ fontSize: 11 }}>
+                                            {lead.customer.company}
+                                        </Text>
+                                    </Space>
+                                ) : (
+                                    <Text style={{ fontSize: 11 }}>-</Text>
+                                )
+                            }
+                        </Space>
+                    </Flex>
+                    {/* Drag Handle - Chỉ phần này mới có thể nắm để kéo */}
+                    <div
+                        {...dragAttributes}
+                        {...dragListeners}
+                        style={{
+                            cursor: 'grab',
+                            display: 'flex',
+                            alignItems: 'center',
+                            // padding: '4px',
+                            // marginRight: -4,
+                            // borderRadius: 4,
+                            color: token.colorTextQuaternary,
+                        }}
+                        className="rounded-md p-2"
+                    >
+                        <HolderOutlined style={{ fontSize: 16 }} />
+                    </div>
                 </Flex>
             }
             actions={[
@@ -95,7 +145,7 @@ const LeadCard = ({ lead }: { lead: Lead }) => {
                         <Text type="secondary" style={{ fontSize: 11 }}>{t('expectedCloseDate')}</Text>
                         <Space size={4}>
                             <CalendarOutlined style={{ color: token.colorTextQuaternary, fontSize: 12 }} />
-                            <Text style={{ fontSize: 12 }}>{lead.expectedCloseDate ? dayjs(lead.expectedCloseDate).format('DD/MM') : '-'}</Text>
+                            <Text style={{ fontSize: 12 }}>{lead.expectedCloseDate ? dayjs(lead.expectedCloseDate).format('DD/MM HH:mm') : '-'}</Text>
                         </Space>
                     </Flex>
                     <Flex vertical gap={2} align="end">
@@ -117,80 +167,81 @@ const LeadCard = ({ lead }: { lead: Lead }) => {
     );
 };
 
-const mockLeads: Lead[] = [
-    {
-        id: 1,
-        customer: { id: 1, name: "Nguyễn Văn Anh", email: "vananh@gmail.com", phone: "0345678901", company: "Công ty Công nghệ X" },
-        value: 15000000,
-        status: "NEW",
-        assignedTo: { id: 101, name: "Trần Thị Bình", email: "thib@gmail.com", phone: "", role: "SALE", status: "ACTIVE" },
-        expectedCloseDate: "2024-06-15",
-        createdAt: "2024-05-20T10:00:00Z",
-        createdBy: { id: 100, name: "Admin", email: "admin@gmail.com", phone: "", role: "ADMIN", status: "ACTIVE" }
-    },
-    {
-        id: 2,
-        customer: { id: 2, name: "Trần Thị Kim Liên (Khách hàng VIP tiềm năng rất lớn)", email: "kimlien.longemailaddress@verylongdomain.com", phone: "0987123456" }, // Trống công ty, tên và email cực dài
-        value: 500000000,
-        status: "QUALIFIED",
-        assignedTo: { id: 101, name: "Trần Thị Bình", email: "thib@gmail.com", phone: "", role: "SALE", status: "ACTIVE" },
-        expectedCloseDate: "", // Trống ngày đóng dự kiến
-        createdAt: "2024-05-22T14:30:00Z",
-        createdBy: { id: 100, name: "Admin", email: "admin@gmail.com", phone: "", role: "ADMIN", status: "ACTIVE" }
-    },
-    {
-        id: 3,
-        customer: { id: 3, name: "Phạm Thị Dung", email: "thid@gmail.com", phone: "0912345678", company: "Giải pháp Thông minh" },
-        value: 8000000,
-        status: "CONTACTED",
-        assignedTo: { id: 0, name: "", email: "", phone: "", role: "", status: "" }, // Trống thông tin nhân viên phụ trách
-        expectedCloseDate: "2024-06-10",
-        createdAt: "2024-05-25T09:15:00Z",
-        createdBy: { id: 100, name: "Admin", email: "admin@gmail.com", phone: "", role: "ADMIN", status: "ACTIVE" }
-    },
-    {
-        id: 4,
-        customer: { id: 4, name: "Lê Văn Cường", email: "cuong@gmail.com", phone: "0909090909" },
-        value: 0, // Giá trị bằng 0
-        status: "LOST",
-        assignedTo: { id: 103, name: "Lý Thị Hoa", email: "hoal@gmail.com", phone: "", role: "SALE", status: "ACTIVE" },
-        expectedCloseDate: "2024-05-30",
-        createdAt: "2024-05-15T11:00:00Z",
-        createdBy: { id: 100, name: "Admin", email: "admin@gmail.com", phone: "", role: "ADMIN", status: "ACTIVE" }
-    }
-];
+const SortableLeadCard = ({ lead }: { lead: Lead }) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: lead.id });
 
-const COLUMNS = ['NEW', 'CONTACTED', 'QUALIFIED', 'WON', 'LOST'];
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.3 : 1,
+    };
 
-const LeadCardSkeleton = () => {
-    const { token } = theme.useToken();
     return (
-        <Card
-            size="small"
-            style={{ borderRadius: token.borderRadiusLG, border: `1px solid ${token.colorBorderSecondary}` }}
-            styles={{ body: { padding: token.paddingMD } }}
-        >
-            <Flex vertical gap={token.marginMD}>
-                <Flex vertical gap={8}>
-                    <Skeleton.Input active size="small" style={{ width: '60%' }} />
-                    <Skeleton.Input active size="small" style={{ width: '40%' }} />
-                </Flex>
-                <Divider dashed style={{ margin: '4px 0' }} />
-                <Flex justify="space-between" align="center">
-                    <Skeleton.Button active size="small" style={{ width: 60 }} />
-                    <Skeleton.Avatar active size="small" shape="circle" />
-                </Flex>
-            </Flex>
-        </Card>
+        <div ref={setNodeRef} style={style}>
+            <LeadCard
+                lead={lead}
+                dragAttributes={attributes}
+                dragListeners={listeners}
+            />
+        </div>
     );
 };
 
-const LeadCardView = ({ leads = [], loading = false }: LeadCardViewProps) => {
+const COLUMNS = ['NEW', 'CONTACTED', 'QUALIFIED', 'WON', 'LOST'];
+
+const DroppableContainer = ({ id, children, loading }: { id: string, children: React.ReactNode, loading: boolean }) => {
+    const { setNodeRef } = useDroppable({ id });
     const { token } = theme.useToken();
-    const displayLeads = (loading || leads.length > 0) ? leads : mockLeads;
+
+    return (
+        <Flex
+            ref={setNodeRef}
+            vertical
+            gap={token.marginSM}
+            style={{
+                flex: 1,
+                minHeight: '200px', // Đảm bảo luôn có không gian để drop
+                paddingBottom: '100px' // Thêm padding để dễ drop vào cuối danh sách
+            }}
+        >
+            {loading ? (
+                <Flex align="center" justify="center" style={{ flex: 1, minHeight: 150 }}>
+                    <Spin />
+                </Flex>
+            ) : children}
+        </Flex>
+    );
+};
+
+const LeadCardView = ({ leads: initialLeads = [], loading = false }: LeadCardViewProps) => {
+    const { token } = theme.useToken();
+    const [leads, setLeads] = useState<Lead[]>([]);
+    const [activeId, setActiveId] = useState<number | null>(null);
+
+    useEffect(() => {
+        setLeads(initialLeads);
+    }, [initialLeads]);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     const groupedLeads = COLUMNS.reduce((acc, status) => {
-        acc[status] = displayLeads.filter(lead => lead.status.toUpperCase() === status);
+        acc[status] = leads.filter(lead => lead.status.toUpperCase() === status);
         return acc;
     }, {} as Record<string, Lead[]>);
 
@@ -205,76 +256,176 @@ const LeadCardView = ({ leads = [], loading = false }: LeadCardViewProps) => {
         }
     };
 
+    // -- Drag and Drop Handlers --
+
+    /**
+     * Khi bắt đầu kéo: Lưu lại ID của Lead đang được kéo để hiển thị trên DragOverlay
+     */
+    const handleDragStart = (event: DragStartEvent) => {
+        setActiveId(event.active.id as number);
+    };
+
+    /**
+     * Khi đang kéo qua các vị trí khác (Drag Over):
+     * Logic này xử lý việc "nhảy" thẻ giữa các cột (status) khác nhau
+     */
+    const handleDragOver = (event: DragOverEvent) => {
+        const { active, over } = event;
+        if (!over) return;
+
+        const activeId = active.id as number;
+        const overId = over.id;
+
+        // Tìm Lead đang được kéo
+        const activeLead = leads.find((l) => l.id === activeId);
+        if (!activeLead) return;
+
+        /**
+         * Trường hợp 1: Di chuyển vào một cột (overId là tên status như 'NEW', 'WON'...)
+         */
+        if (COLUMNS.includes(overId as string)) {
+            if (activeLead.status.toUpperCase() !== overId) {
+                setLeads((prev) =>
+                    prev.map((l) =>
+                        l.id === activeId ? { ...l, status: overId as string } : l
+                    )
+                );
+            }
+            return;
+        }
+
+        /**
+         * Trường hợp 2: Di chuyển đè lên một thẻ khác
+         * Nếu thẻ đó thuộc cột khác, ta cập nhật status của thẻ đang kéo
+         */
+        const overLead = leads.find((l) => l.id === overId);
+        if (overLead && activeLead.status !== overLead.status) {
+            setLeads((prev) =>
+                prev.map((l) =>
+                    l.id === activeId ? { ...l, status: overLead.status } : l
+                )
+            );
+        }
+    };
+
+    /**
+     * Khi kết thúc kéo (Drag End):
+     * Xử lý việc sắp xếp lại thứ tự (reorder) trong cùng một cột
+     */
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        setActiveId(null); // Reset ID đang kéo
+
+        if (!over) return;
+
+        // Nếu vị trí kết thúc khác vị trí bắt đầu, thực hiện sắp xếp lại mảng
+        if (active.id !== over.id) {
+            const activeIndex = leads.findIndex((l) => l.id === active.id);
+            const overIndex = leads.findIndex((l) => l.id === over.id);
+
+            if (activeIndex !== -1 && overIndex !== -1) {
+                // arrayMove là helper của dnd-kit để tráo đổi vị trí phần tử
+                setLeads((items) => arrayMove(items, activeIndex, overIndex));
+            }
+        }
+
+        // TODO: Tại đây có thể gọi API để cập nhật status/rank mới của Lead lên Database
+    };
+
+    const activeLead = activeId ? leads.find(l => l.id === activeId) : null;
+
     return (
         <Flex vertical style={{ height: 'calc(100vh - 100px)', overflow: 'hidden' }}>
-            <div className="flex-1 overflow-x-auto pb-4 custom-scrollbar">
-                <Flex gap={token.marginMD} style={{ height: '100%', minWidth: 'max-content', padding: token.paddingXXS }}>
-                    {COLUMNS.map(status => (
-                        <Card
-                            key={status}
-                            size="small"
-                            styles={{
-                                body: {
-                                    padding: token.paddingSM,
-                                    backgroundColor: token.colorFillAlter,
-                                    flex: 1,
-                                    overflowY: 'auto',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: token.marginSM
-                                },
-                                header: {
-                                    borderBottom: `2px solid ${getStatusColor(status)}`,
-                                    backgroundColor: token.colorBgContainer
-                                }
-                            }}
-                            className="custom-scrollbar"
-                            title={
-                                <Space size={8}>
-                                    <Badge color={getStatusColor(status)} />
-                                    <Text strong style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                        {status}
-                                    </Text>
-                                    <Badge
-                                        count={groupedLeads[status].length}
-                                        showZero
-                                        color={token.colorFillSecondary}
-                                        style={{ color: token.colorTextSecondary, fontSize: 10 }}
-                                    />
-                                </Space>
-                            }
-                            style={{
-                                width: 320,
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                borderRadius: token.borderRadiusLG,
-                                border: `1px solid ${token.colorBorderSecondary}`,
-                                overflow: 'hidden'
-                            }}
-                        >
-                            {loading ? (
-                                <Flex vertical gap={token.marginSM}>
-                                    <LeadCardSkeleton />
-                                    <LeadCardSkeleton />
-                                    <LeadCardSkeleton />
-                                </Flex>
-                            ) : groupedLeads[status].length === 0 ? (
-                                <Flex align="center" justify="center" style={{ flex: 1 }}>
-                                    <Empty
-                                        image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                        description={<Text type="secondary" style={{ fontSize: 12 }}>Trống</Text>}
-                                    />
-                                </Flex>
-                            ) : (
-                                groupedLeads[status].map(lead => (
-                                    <LeadCard key={lead.id} lead={lead} />
-                                ))
-                            )}
-                        </Card>
-                    ))}
-                </Flex>
-            </div>
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCorners}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragEnd={handleDragEnd}
+            >
+                <div className="flex-1 overflow-x-auto pb-4 custom-scrollbar">
+                    <Flex gap={token.marginMD} style={{ height: '100%', minWidth: 'max-content', padding: token.paddingXXS }}>
+                        {COLUMNS.map(status => (
+                            <SortableContext
+                                key={status}
+                                id={status}
+                                items={groupedLeads[status].map(l => l.id)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                <Card
+                                    size="small"
+                                    styles={{
+                                        body: {
+                                            padding: token.paddingSM,
+                                            backgroundColor: token.colorFillAlter,
+                                            flex: 1,
+                                            overflowY: 'auto',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                        },
+                                        header: {
+                                            borderBottom: `2px solid ${getStatusColor(status)}`,
+                                            backgroundColor: token.colorBgContainer
+                                        }
+                                    }}
+                                    className="custom-scrollbar"
+                                    title={
+                                        <Space size={8}>
+                                            <Badge color={getStatusColor(status)} />
+                                            <Text strong style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                                {status}
+                                            </Text>
+                                            <Badge
+                                                count={groupedLeads[status].length}
+                                                showZero
+                                                color={token.colorFillSecondary}
+                                                style={{ color: token.colorTextSecondary, fontSize: 10 }}
+                                            />
+                                        </Space>
+                                    }
+                                    style={{
+                                        width: 320,
+                                        height: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        borderRadius: token.borderRadiusLG,
+                                        border: `1px solid ${token.colorBorderSecondary}`,
+                                        overflow: 'hidden'
+                                    }}
+                                >
+                                    <DroppableContainer id={status} loading={loading}>
+                                        {groupedLeads[status].length === 0 ? (
+                                            <Flex align="center" justify="center" style={{ flex: 1, minHeight: 150 }}>
+                                                <Empty
+                                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                                    description={<Text type="secondary" style={{ fontSize: 12 }}>Trống</Text>}
+                                                />
+                                            </Flex>
+                                        ) : (
+                                            groupedLeads[status].map(lead => (
+                                                <SortableLeadCard key={lead.id} lead={lead} />
+                                            ))
+                                        )}
+                                    </DroppableContainer>
+                                </Card>
+                            </SortableContext>
+                        ))}
+                    </Flex>
+                </div>
+                <DragOverlay dropAnimation={{
+                    sideEffects: defaultDropAnimationSideEffects({
+                        styles: {
+                            active: {
+                                opacity: '0.5',
+                            },
+                        },
+                    }),
+                }}>
+                    {activeLead ? (
+                        <LeadCard lead={activeLead} isOverlay />
+                    ) : null}
+                </DragOverlay>
+            </DndContext>
 
             <style jsx global>{`
                 .custom-scrollbar::-webkit-scrollbar {

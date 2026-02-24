@@ -115,6 +115,11 @@
     "backHome": "Back to Home",
     "deleteTitle": "Delete",
     "deleteConfirm": "Are you sure you want to delete this?",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "start date": "Start date",
+    "end date": "End date"
   }
 }
