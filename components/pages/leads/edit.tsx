@@ -15,7 +15,7 @@ import dayjs from '@/lib/dayjs';
 
 const { Option } = Select;
 
-const LeadDetailPage = () => {
+const LeadEditPage = () => {
     const params = useParams();
     const router = useRouter();
     const id = params.id as string;
@@ -138,7 +138,7 @@ const LeadDetailPage = () => {
                         rules={[{ required: true }]}
                     >
                         <Select placeholder={t('status')}>
-                            <Option value="OPEN">OPEN</Option>
+                            <Option value="NEW">NEW</Option>
                             <Option value="CONTACTED">CONTACTED</Option>
                             <Option value="QUALIFIED">QUALIFIED</Option>
                             <Option value="WON">WON</Option>
@@ -189,4 +189,4 @@ const LeadDetailPage = () => {
     );
 };
 
-export default LeadDetailPage;
+export default LeadEditPage;

@@ -51,10 +51,16 @@ import { CSS } from '@dnd-kit/utilities';
 
 const { Text } = Typography;
 
+import { useUpdateLead } from '@/hooks/api/useLead';
+
 interface LeadCardViewProps {
     leads?: Lead[];
     loading?: boolean;
     onCreate?: () => void;
+    onLoadMore?: () => void;
+    hasMore?: boolean;
+    loadingMore?: boolean;
+    role?: string;
 }
 
 const LeadCard = ({ lead, isOverlay = false, dragAttributes, dragListeners }: {
@@ -74,6 +80,7 @@ const LeadCard = ({ lead, isOverlay = false, dragAttributes, dragListeners }: {
                 borderRadius: token.borderRadiusLG,
                 border: `1px solid ${token.colorBorderSecondary}`,
                 opacity: isOverlay ? 0.8 : 1,
+                marginBottom: token.marginSM
             }}
             styles={{
                 body: { padding: token.paddingMD },
@@ -204,7 +211,6 @@ const DroppableContainer = ({ id, children, loading }: { id: string, children: R
         <Flex
             ref={setNodeRef}
             vertical
-            gap={token.marginSM}
             style={{
                 flex: 1,
                 minHeight: '200px', // Đảm bảo luôn có không gian để drop
@@ -220,10 +226,21 @@ const DroppableContainer = ({ id, children, loading }: { id: string, children: R
     );
 };
 
-const LeadCardView = ({ leads: initialLeads = [], loading = false }: LeadCardViewProps) => {
+const LeadCardView = ({
+    leads: initialLeads = [],
+    loading = false,
+    onLoadMore,
+    hasMore = false,
+    loadingMore = false,
+    role = 'admin'
+}: LeadCardViewProps) => {
     const { token } = theme.useToken();
+    const tCommon = useTranslations('common');
+    const updateLeadMutation = useUpdateLead();
+
     const [leads, setLeads] = useState<Lead[]>([]);
     const [activeId, setActiveId] = useState<number | null>(null);
+    const [originalStatus, setOriginalStatus] = useState<string | null>(null);
 
     useEffect(() => {
         setLeads(initialLeads);
@@ -247,7 +264,7 @@ const LeadCardView = ({ leads: initialLeads = [], loading = false }: LeadCardVie
 
     const getStatusColor = (status: string) => {
         switch (status.toUpperCase()) {
-            case 'NEW': return token.colorPrimary;
+            case 'NEW': return token.colorTextTertiary;
             case 'CONTACTED': return token.colorWarning;
             case 'QUALIFIED': return token.colorInfo;
             case 'WON': return token.colorSuccess;
@@ -259,10 +276,15 @@ const LeadCardView = ({ leads: initialLeads = [], loading = false }: LeadCardVie
     // -- Drag and Drop Handlers --
 
     /**
-     * Khi bắt đầu kéo: Lưu lại ID của Lead đang được kéo để hiển thị trên DragOverlay
+     * Khi bắt đầu kéo: Lưu lại ID và Status gốc của Lead
      */
     const handleDragStart = (event: DragStartEvent) => {
-        setActiveId(event.active.id as number);
+        const id = event.active.id as number;
+        setActiveId(id);
+        const lead = leads.find(l => l.id === id);
+        if (lead) {
+            setOriginalStatus(lead.status.toUpperCase());
+        }
     };
 
     /**
@@ -310,26 +332,41 @@ const LeadCardView = ({ leads: initialLeads = [], loading = false }: LeadCardVie
 
     /**
      * Khi kết thúc kéo (Drag End):
-     * Xử lý việc sắp xếp lại thứ tự (reorder) trong cùng một cột
+     * Xử lý việc sắp xếp lại thứ tự (reorder) và cập nhật API
      */
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
-        setActiveId(null); // Reset ID đang kéo
+        setActiveId(null);
 
-        if (!over) return;
+        if (!over) {
+            setOriginalStatus(null);
+            return;
+        }
 
-        // Nếu vị trí kết thúc khác vị trí bắt đầu, thực hiện sắp xếp lại mảng
+        const leadId = active.id as number;
+        const finalLead = leads.find(l => l.id === leadId);
+
+        // 1. Cập nhật giao diện nếu có thay đổi thứ tự
         if (active.id !== over.id) {
             const activeIndex = leads.findIndex((l) => l.id === active.id);
             const overIndex = leads.findIndex((l) => l.id === over.id);
 
             if (activeIndex !== -1 && overIndex !== -1) {
-                // arrayMove là helper của dnd-kit để tráo đổi vị trí phần tử
                 setLeads((items) => arrayMove(items, activeIndex, overIndex));
             }
         }
 
-        // TODO: Tại đây có thể gọi API để cập nhật status/rank mới của Lead lên Database
+        // 2. Gọi API cập nhật nếu trạng thái thay đổi
+        if (finalLead && originalStatus && finalLead.status.toUpperCase() !== originalStatus) {
+            updateLeadMutation.mutate({
+                id: leadId,
+                values: {
+                    status: finalLead.status.toUpperCase()
+                }
+            });
+        }
+
+        setOriginalStatus(null);
     };
 
     const activeLead = activeId ? leads.find(l => l.id === activeId) : null;
@@ -426,6 +463,18 @@ const LeadCardView = ({ leads: initialLeads = [], loading = false }: LeadCardVie
                     ) : null}
                 </DragOverlay>
             </DndContext>
+
+            {hasMore && (
+                <Flex justify="center" style={{ padding: `${token.paddingMD}px 0`, borderTop: `1px solid ${token.colorBorderSecondary}` }}>
+                    <Button
+                        onClick={onLoadMore}
+                        loading={loadingMore}
+                        style={{ borderRadius: token.borderRadiusLG }}
+                    >
+                        {tCommon('loadMore')}
+                    </Button>
+                </Flex>
+            )}
 
             <style jsx global>{`
                 .custom-scrollbar::-webkit-scrollbar {

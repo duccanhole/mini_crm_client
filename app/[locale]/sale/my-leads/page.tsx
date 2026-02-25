@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Flex, Radio, Space, theme, Typography, DatePicker } from 'antd';
 import {
     AppstoreOutlined,
     BarsOutlined,
-    PlusOutlined,
     ReloadOutlined
 } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
@@ -13,70 +12,63 @@ import LeadCardView from '@/components/leads/card-view';
 import dayjs, { Dayjs } from 'dayjs';
 import LeadListView from '@/components/leads/list-view';
 import { Lead } from '@/types/model';
+import { useGetLeads } from '@/hooks/api/useLead';
+import { SearchQueryParams } from '@/types/api';
+import { useRouter } from '@/i18n/routing';
 
-const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
-const mockLeads: Lead[] = [
-    {
-        id: 1,
-        customer: { id: 1, name: "Nguyễn Văn Anh", email: "vananh@gmail.com", phone: "0345678901", company: "Công ty Công nghệ X" },
-        value: 15000000,
-        status: "NEW",
-        assignedTo: { id: 101, name: "Trần Thị Bình", email: "thib@gmail.com", phone: "", role: "SALE", status: "ACTIVE" },
-        expectedCloseDate: "2024-06-15",
-        createdAt: "2024-05-20T10:00:00Z",
-        createdBy: { id: 100, name: "Admin", email: "admin@gmail.com", phone: "", role: "ADMIN", status: "ACTIVE" }
-    },
-    {
-        id: 2,
-        customer: { id: 2, name: "Trần Thị Kim Liên (Khách hàng VIP tiềm năng rất lớn)", email: "kimlien.longemailaddress@verylongdomain.com", phone: "0987123456" }, // Trống công ty, tên và email cực dài
-        value: 500000000,
-        status: "QUALIFIED",
-        assignedTo: { id: 101, name: "Trần Thị Bình", email: "thib@gmail.com", phone: "", role: "SALE", status: "ACTIVE" },
-        expectedCloseDate: "", // Trống ngày đóng dự kiến
-        createdAt: "2024-05-22T14:30:00Z",
-        createdBy: { id: 100, name: "Admin", email: "admin@gmail.com", phone: "", role: "ADMIN", status: "ACTIVE" }
-    },
-    {
-        id: 3,
-        customer: { id: 3, name: "Phạm Thị Dung", email: "thid@gmail.com", phone: "0912345678", company: "Giải pháp Thông minh" },
-        value: 8000000,
-        status: "CONTACTED",
-        assignedTo: { id: 0, name: "", email: "", phone: "", role: "", status: "" }, // Trống thông tin nhân viên phụ trách
-        expectedCloseDate: "2024-06-10",
-        createdAt: "2024-05-25T09:15:00Z",
-        createdBy: { id: 100, name: "Admin", email: "admin@gmail.com", phone: "", role: "ADMIN", status: "ACTIVE" }
-    },
-    {
-        id: 4,
-        customer: { id: 4, name: "Lê Văn Cường", email: "cuong@gmail.com", phone: "0909090909" },
-        value: 0, // Giá trị bằng 0
-        status: "LOST",
-        assignedTo: { id: 103, name: "Lý Thị Hoa", email: "hoal@gmail.com", phone: "", role: "SALE", status: "ACTIVE" },
-        expectedCloseDate: "2024-05-30",
-        createdAt: "2024-05-15T11:00:00Z",
-        createdBy: { id: 100, name: "Admin", email: "admin@gmail.com", phone: "", role: "ADMIN", status: "ACTIVE" }
-    }
-];
-
+const DEFAULT_PAGE_SIZE = 12;
 
 export default function MyLeadsPage() {
-    const t = useTranslations('LeadsPage');
     const tCommon = useTranslations('common');
-    const tNav = useTranslations('navigation');
     const { token } = theme.useToken();
+
+    const router = useRouter();
 
     const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
     const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>([
-        dayjs().startOf('month'),
-        dayjs().endOf('month')
+        dayjs().startOf('week'),
+        dayjs().endOf('week')
     ]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [page, setPage] = useState(0);
+    const [leads, setLeads] = useState<Lead[]>([]);
+
+    const queryParams: SearchQueryParams = {
+        page: page,
+        size: DEFAULT_PAGE_SIZE,
+        createdFrom: dateRange?.[0]?.toISOString(),
+        createdTo: dateRange?.[1]?.toISOString(),
+    };
+
+    const { data: leadsResponse, isLoading, isFetching, refetch } = useGetLeads(queryParams);
+
+    const hasMore = leadsResponse?.data ? (leadsResponse.data.number + 1 < leadsResponse.data.totalPages) : false;
+
+    useEffect(() => {
+        if (leadsResponse?.data.content) {
+            if (page === 0) {
+                setLeads(leadsResponse.data.content);
+            } else {
+                setLeads(prev => [...prev, ...leadsResponse.data.content]);
+            }
+        }
+    }, [leadsResponse, page]);
 
     const handleRefresh = () => {
-        setIsLoading(true);
-        setTimeout(() => setIsLoading(false), 2000);
+        setPage(0);
+        refetch();
+    };
+
+    const handleLoadMore = () => {
+        if (hasMore) {
+            setPage(prev => prev + 1);
+        }
+    };
+
+    const onDateRangeChange = (dates: [Dayjs | null, Dayjs | null] | null) => {
+        setDateRange(dates);
+        setPage(0); // Reset về trang đầu khi thay đổi filter
     };
 
     return (
@@ -104,7 +96,7 @@ export default function MyLeadsPage() {
 
                     <RangePicker
                         value={dateRange}
-                        onChange={(dates) => setDateRange(dates)}
+                        onChange={onDateRangeChange}
                         format="DD/MM/YYYY"
                         placeholder={[tCommon('start date'), tCommon('end date')]}
                         style={{ borderRadius: token.borderRadiusLG }}
@@ -114,12 +106,12 @@ export default function MyLeadsPage() {
                 <Space>
                     <Button
                         icon={<ReloadOutlined />}
-                        loading={isLoading}
+                        loading={isLoading && page === 0}
                         onClick={handleRefresh}
                     />
                     <Button
                         type="primary"
-                        onClick={() => console.log('Create new lead')}
+                        onClick={() => router.push('/sale/leads/new')}
                     >
                         {tCommon('add new')}
                     </Button>
@@ -128,12 +120,23 @@ export default function MyLeadsPage() {
 
             {/* Content Area */}
             {viewMode === 'card' ? (
-                <LeadCardView loading={isLoading} leads={mockLeads} />
+                <LeadCardView
+                    loading={isLoading && page === 0}
+                    leads={leads}
+                    hasMore={hasMore}
+                    loadingMore={isFetching && page > 0}
+                    onLoadMore={handleLoadMore}
+                />
             ) : (
-                <LeadListView loading={isLoading} leads={mockLeads} />
+                <LeadListView
+                    loading={isLoading && page === 0}
+                    leads={leads}
+                    hasMore={hasMore}
+                    loadingMore={isFetching && page > 0}
+                    onLoadMore={handleLoadMore}
+                    role="sale"
+                />
             )}
         </Flex>
     );
 }
-
-const { Text } = Typography;

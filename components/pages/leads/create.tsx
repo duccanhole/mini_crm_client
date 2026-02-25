@@ -1,11 +1,10 @@
-'use client'
+'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Form, Button, Card, Space, Spin, Select, InputNumber, DatePicker } from 'antd';
-import { useParams } from 'next/navigation';
+import React, { useState } from 'react';
+import { Form, Button, Card, Space, Select, InputNumber, DatePicker } from 'antd';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
-import { useGetLead, useUpdateLead } from '@/hooks/api/useLead';
+import { useCreateLead } from '@/hooks/api/useLead';
 import { useGetCustomers } from '@/hooks/api/useCustomer';
 import { useGetUsers } from '@/hooks/api/useUser';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -15,15 +14,11 @@ import dayjs from '@/lib/dayjs';
 
 const { Option } = Select;
 
-const LeadDetailPage = () => {
-    const params = useParams();
+const LeadCreatePage = () => {
     const router = useRouter();
-    const id = params.id as string;
     const t = useTranslations('LeadsPage');
     const tCommon = useTranslations('common');
     const [form] = Form.useForm();
-
-    const { data: leadResponse, isLoading: isFetching } = useGetLead(id);
 
     const [customerSearch, setCustomerSearch] = useState('');
     const debouncedCustomerSearch = useDebounce(customerSearch, 500);
@@ -39,43 +34,23 @@ const LeadDetailPage = () => {
         search: debouncedUserSearch
     });
 
-    const updateMutation = useUpdateLead();
-
-    useEffect(() => {
-        if (leadResponse?.data) {
-            const lead = leadResponse.data;
-            form.setFieldsValue({
-                customerId: lead.customer?.id,
-                value: lead.value,
-                status: lead.status,
-                assignedToId: lead.assignedTo?.id,
-                expectedCloseDate: lead.expectedCloseDate ? dayjs(lead.expectedCloseDate).tz() : undefined,
-            });
-        }
-    }, [leadResponse, form]);
+    const createMutation = useCreateLead();
 
     const onFinish = async (values: any) => {
         try {
-            const updateData: LeadDTO = {
+            const createData: LeadDTO = {
                 customerId: values.customerId,
                 value: values.value,
                 status: values.status,
                 assignedToId: values.assignedToId,
-                expectedCloseDate: values.expectedCloseDate ? dayjs(values.expectedCloseDate).format('YYYY-MM-DDTHH:mm:ss') : undefined,
+                expectedCloseDate: values.expectedCloseDate ? values.expectedCloseDate.format('YYYY-MM-DDTHH:mm:ss') : undefined,
             };
-            await updateMutation.mutateAsync({ id, values: updateData });
+            await createMutation.mutateAsync(createData);
+            router.back();
         } catch (error) {
-            console.error('Update failed:', error);
+            console.error('Create failed:', error);
         }
     };
-
-    if (isFetching) {
-        return (
-            <div className="flex justify-center items-center h-[400px]">
-                <Spin size="large" tip={tCommon('processing')} />
-            </div>
-        );
-    }
 
     return (
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
@@ -98,6 +73,7 @@ const LeadDetailPage = () => {
                     layout="vertical"
                     onFinish={onFinish}
                     autoComplete="off"
+                    initialValues={{ status: 'NEW' }}
                 >
                     <Form.Item
                         name="customerId"
@@ -138,9 +114,11 @@ const LeadDetailPage = () => {
                         rules={[{ required: true }]}
                     >
                         <Select placeholder={t('status')}>
-                            <Option value="OPEN">OPEN</Option>
+                            <Option value="NEW">NEW</Option>
                             <Option value="CONTACTED">CONTACTED</Option>
                             <Option value="QUALIFIED">QUALIFIED</Option>
+                            <Option value="PROPOSAL">PROPOSAL</Option>
+                            <Option value="NEGOTIATION">NEGOTIATION</Option>
                             <Option value="WON">WON</Option>
                             <Option value="LOST">LOST</Option>
                         </Select>
@@ -177,7 +155,7 @@ const LeadDetailPage = () => {
                             <Button
                                 type="primary"
                                 htmlType="submit"
-                                loading={updateMutation.isPending}
+                                loading={createMutation.isPending}
                             >
                                 {tCommon('confirm')}
                             </Button>
@@ -189,4 +167,4 @@ const LeadDetailPage = () => {
     );
 };
 
-export default LeadDetailPage;
+export default LeadCreatePage;

@@ -89,7 +89,10 @@
     "profile": "Hồ sơ",
     "settings": "Cài đặt",
     "logout": "Đăng xuất",
-    "change-password": "Đổi mật khẩu"
+    "change-password": "Đổi mật khẩu",
+    "my-leads": "Khách hàng tiềm năng của tôi",
+    "my-customers": "Khách hàng của tôi",
+    "my-activities": "Hoạt động của tôi"
   },
   "msg": {
     "Email already exists": "Email đã tồn tại",
@@ -120,6 +123,7 @@
     "week": "Tuần",
     "month": "Tháng",
     "start date": "Ngày bắt đầu",
-    "end date": "Ngày kết thúc"
+    "end date": "Ngày kết thúc",
+    "loadMore": "Xem thêm"
   }
 }

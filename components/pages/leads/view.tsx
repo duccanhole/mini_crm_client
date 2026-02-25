@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Table, Space, Button, App, Tag, theme, Flex } from 'antd';
+import { Table, Space, Button, App, Tag } from 'antd';
 import { useDeleteLead, useGetLeads, leadKeys } from '@/hooks/api/useLead';
 import { Lead } from '@/types/model';
 import { SearchQueryParams } from '@/types/api';
@@ -10,31 +10,18 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@/i18n/routing';
 import dayjs from '@/lib/dayjs';
 
-interface LeadListViewProps {
-    leads?: Lead[];
-    loading?: boolean;
-    onCreate?: () => void;
-    onLoadMore?: () => void;
-    hasMore?: boolean;
-    loadingMore?: boolean;
-    role?: string;
-}
+const LeadsViewPage = () => {
+    const [pagination, setPagination] = useState<SearchQueryParams>({
+        page: 0,
+        size: 10,
+    });
 
-const LeadListView = ({
-    leads,
-    loading,
-    onCreate,
-    onLoadMore,
-    hasMore = false,
-    loadingMore = false,
-    role = 'admin'
-}: LeadListViewProps) => {
     const tLeadsPage = useTranslations('LeadsPage');
     const tCommon = useTranslations('common');
-    const { token } = theme.useToken();
 
     const queryClient = useQueryClient();
     const router = useRouter();
+    const { data: leadsData, isLoading } = useGetLeads(pagination);
     const deleteLeadMutation = useDeleteLead();
 
     const columns: any[] = [
@@ -51,7 +38,6 @@ const LeadListView = ({
             dataIndex: 'value',
             key: 'value',
             width: 150,
-            sorter: (a: Lead, b: Lead) => (a.value || 0) - (b.value || 0),
             render: (value: number) => value ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value) : '-',
         },
         {
@@ -59,35 +45,10 @@ const LeadListView = ({
             dataIndex: 'status',
             key: 'status',
             width: 150,
-            filters: [
-                { text: 'NEW', value: 'NEW' },
-                { text: 'CONTACTED', value: 'CONTACTED' },
-                { text: 'QUALIFIED', value: 'QUALIFIED' },
-                { text: 'WON', value: 'WON' },
-                { text: 'LOST', value: 'LOST' },
-            ],
-            onFilter: (value: any, record: Lead) => record.status.toUpperCase() === (value as string).toUpperCase(),
             render: (status: string) => {
                 let color = 'processing';
-                switch (status.toUpperCase()) {
-                    case 'NEW':
-                        color = 'default';
-                        break;
-                    case 'CONTACTED':
-                        color = 'warning';
-                        break;
-                    case 'QUALIFIED':
-                        color = 'processing';
-                        break;
-                    case 'WON':
-                        color = 'success';
-                        break;
-                    case 'LOST':
-                        color = 'error';
-                        break;
-                    default:
-                        color = 'default';
-                }
+                if (status === 'WON') color = 'success';
+                if (status === 'LOST') color = 'error';
                 return (
                     <Tag color={color}>
                         {status}
@@ -112,11 +73,6 @@ const LeadListView = ({
             dataIndex: 'expectedCloseDate',
             key: 'expectedCloseDate',
             width: 200,
-            sorter: (a: Lead, b: Lead) => {
-                const dateA = a.expectedCloseDate ? dayjs(a.expectedCloseDate).valueOf() : 0;
-                const dateB = b.expectedCloseDate ? dayjs(b.expectedCloseDate).valueOf() : 0;
-                return dateA - dateB;
-            },
             render: (text: string) => text ? dayjs(text).format('DD/MM/YYYY HH:mm') : '-',
         },
         {
@@ -125,12 +81,20 @@ const LeadListView = ({
             width: 150,
             render: (_: any, record: Lead) => (
                 <Space size="middle">
-                    <a onClick={() => router.push(`/${role}/leads/${record.id}`)}>{tCommon('edit')}</a>
+                    <a onClick={() => router.push(`/admin/leads/${record.id}`)}>{tCommon('edit')}</a>
                     <a style={{ color: 'red' }} onClick={() => handleDelete(record.id as string)}>{tCommon('delete')}</a>
                 </Space>
             ),
         },
     ];
+
+    const handleTableChange = (newPagination: any) => {
+        setPagination({
+            ...pagination,
+            page: newPagination.current - 1,
+            size: newPagination.pageSize,
+        });
+    };
 
     const { modal } = App.useApp();
 
@@ -154,28 +118,27 @@ const LeadListView = ({
     };
 
     return (
-        <Flex vertical gap={token.marginMD}>
+        <div>
+            <div className='flex justify-end !mb-4'>
+                <Button type="primary" onClick={() => router.push('/admin/leads/new')}>{tCommon('add new')}</Button>
+            </div>
+
             <Table
                 columns={columns}
-                dataSource={leads || []}
+                dataSource={leadsData?.data?.content || []}
                 rowKey="id"
-                loading={loading}
-                pagination={false}
+                loading={isLoading}
+                pagination={{
+                    current: (leadsData?.data?.number || 0) + 1,
+                    pageSize: leadsData?.data?.size || 10,
+                    total: leadsData?.data?.totalElements || 0,
+                    showSizeChanger: true,
+                }}
+                onChange={handleTableChange}
                 scroll={{ x: 'max-content' }}
             />
-            {hasMore && (
-                <Flex justify="center" style={{ padding: `${token.paddingMD}px 0` }}>
-                    <Button
-                        onClick={onLoadMore}
-                        loading={loadingMore}
-                        style={{ borderRadius: token.borderRadiusLG }}
-                    >
-                        {tCommon('loadMore')}
-                    </Button>
-                </Flex>
-            )}
-        </Flex>
+        </div>
     )
 }
 
-export default LeadListView
+export default LeadsViewPage

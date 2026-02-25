@@ -55,8 +55,8 @@ const ErrorContent = () => {
                 title={code}
                 subTitle={message}
                 extra={
-                    <Button type="primary" onClick={() => router.push('/')}>
-                        {tCommon('backHome')}
+                    <Button type="primary" onClick={() => router.back()}>
+                        {tCommon('back')}
                     </Button>
                 }
             />

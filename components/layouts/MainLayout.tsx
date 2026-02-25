@@ -64,8 +64,34 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
                 label: t('leads'),
             },
         ],
-        manager: [],
-        sale: [],
+        manager: [
+            {
+                key: 'dashboard',
+                label: t('dashboard'),
+            },
+            {
+                key: 'customer',
+                label: t('customers'),
+            },
+            {
+                key: 'lead',
+                label: t('leads'),
+            },
+        ],
+        sale: [
+            {
+                key: 'my-leads',
+                label: t('my-leads'),
+            },
+            {
+                key: 'my-customers',
+                label: t('my-customers'),
+            },
+            {
+                key: 'my-activities',
+                label: t('my-activities'),
+            },
+        ],
     };
 
     const userMenuItems: MenuProps['items'] = [

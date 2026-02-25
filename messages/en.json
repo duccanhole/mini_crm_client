@@ -90,7 +90,10 @@
     "profile": "Profile",
     "settings": "Settings",
     "logout": "Logout",
-    "change-password": "Change Password"
+    "change-password": "Change Password",
+    "my-leads": "My Leads",
+    "my-customers": "My Customers",
+    "my-activities": "My Activities"
   },
   "msg": {
     "Email already exists": "Email already exists",
@@ -120,6 +123,7 @@
     "week": "Week",
     "month": "Month",
     "start date": "Start date",
-    "end date": "End date"
+    "end date": "End date",
+    "loadMore": "Load more"
   }
 }
