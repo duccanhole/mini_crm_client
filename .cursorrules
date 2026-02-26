@@ -1,29 +1,44 @@
-# Tech Stack & UI Framework
-- Framework: Next.js (App Router), TypeScript.
-- UI Library: Ant Design (Antd) là chính. 
-- **Antd First Philosophy**: Tuân thủ tuyệt đối ngôn ngữ thiết kế của Ant Design.
-    - Sử dụng tối đa các component có sẵn: `Flex`, `Space`, `Row`, `Col` cho layout; `Typography` cho văn bản; `Badge`, `Tag`, `Avatar` cho thông tin bổ trợ.
-    - Hạn chế sử dụng thẻ `div` kèm class Tailwind cho cấu trúc layout trừ khi Antd không đáp ứng được.
-- **Design Tokens**: Luôn sử dụng `theme.useToken()` để lấy các giá trị thiết kế (màu sắc, bo góc, spacing). TUYỆT ĐỐI KHÔNG hardcode mã màu hoặc sử dụng các utility class của Tailwind cho các giá trị này (ví dụ: dùng `token.colorPrimary` thay vì `text-blue-500` hay `#1677ff`).
-- Styling: Sử dụng Tailwind CSS bổ trợ cho các hiệu ứng (hover, transition, shadow) nhưng không dùng để thay thế cấu trúc layout của Antd.
-- Icons: Sử dụng `@ant-design/icons`.
+#  Mini CRM Project Rules & Guidelines
 
-# Project Structure & Conventions
-- Components: 
-    - `components/pages/`: Chứa các component lớn tương ứng với một trang.
-    - `components/shared/`: Các component dùng chung.
-    - `components/[entity]/`: Các component đặc thù của entity đó (e.g., `components/leads/`).
-- API Hooks: Luôn sử dụng React Query (TanStack Query) đặt trong `hooks/api/`. Theo pattern: `use[Entity].ts` (e.g., `useUser`, `useLead`).
-- Types: Định nghĩa tập trung tại `types/model.ts`.
-- I18n: Sử dụng `next-intl`. Tất cả text hiển thị phải qua hook `useTranslations` và định nghĩa trong `messages/*.json`.
+## 1️ Tech Stack & UI Framework
+- **Core**: Next.js (App Router), TypeScript.
+- **UI Library**: Ant Design (Antd) is the primary library.
+- **Antd First Philosophy**: Strictly follow Ant Design's design language.
+    - Maximize usage of built-in components: `Flex`, `Space`, `Row`, `Col` for layout; `Typography` for text; `Badge`, `Tag`, `Avatar` for supplementary info.
+    - Avoid using `div` with Tailwind classes for layout unless Antd cannot achieve the requirement.
+- **Design Tokens**: Always use `theme.useToken()` for design values (colors, border-radius, spacing). DO NOT hardcode color codes or use Tailwind utility classes for these values (e.g., use `token.colorPrimary` instead of `text-blue-500` or `#1677ff`).
+- **Styling**: Use Tailwind CSS for effects (hover, transition, shadow) but not for core Antd layout structures.
+- **Icons**: Use `@ant-design/icons`.
 
-# Coding Rules
-- Luôn sử dụng `'use client';` cho các component giao diện có tương tác hoặc dùng hooks của Antd.
-- Client fetching: Ưu tiên dùng các custom hooks từ `hooks/api/` thay vì gọi axios trực tiếp trong component.
-- Biến: Sử dụng camelCase cho biến/function, PascalCase cho Components.
-- Naming: Component file name nên trùng với export name (e.g., `card-view.tsx` export `LeadCardView`).
+## 2 Project Structure & Conventions
+- **Components**:
+    - `components/pages/`: Page-level components.
+    - `components/shared/`: Global reusable components.
+    - `components/[entity]/`: Entity-specific components (e.g., `components/leads/`).
+- **API Hooks**: Use React Query (TanStack Query) in `hooks/api/`. Pattern: `use[Entity].ts` (e.g., `useLead`).
+- **Types**: Centralized definitions in `types/model.ts` and `types/api.ts`.
+- **I18n**: Use `next-intl`. All display text must use `useTranslations` and be defined in `messages/*.json`.
 
-# Best Practices
-- Ưu tiên sử dụng các util có sẵn trong `lib/`.
-- Validate dữ liệu: Sử dụng regex từ `lib/validation.ts`.
-- Data display: Sử dụng `dayjs` để format thời gian và `Intl.NumberFormat` cho tiền tệ (VND).
+## 3 Coding Rules
+- **Client Components**: Always use `'use client';` for interactive components or those using Antd hooks.
+- **Data Fetching**: Prefer custom hooks from `hooks/api/` over direct axios calls in components.
+- **Naming**: 
+    - Variables/Functions: `camelCase`.
+    - Components/Types: `PascalCase`.
+    - Files: Match export name (e.g., `LeadCardView` -> `LeadCardView.tsx`).
+
+## 4 Best Practices
+- **Utilities**: Prioritize using utils in `lib/`.
+- **Validation**: Use regex and logic from `lib/validation.ts`.
+- **Data Display**: Use `dayjs` for dates and `Intl.NumberFormat` for currency (VND).
+
+## 5 Decision Priority Order
+When multiple solutions exist, prioritize in this order:
+1. **Antd solution**: Use native library features.
+2. **Existing project pattern**: Maintain consistency with current code.
+3. **Reusability**: Build for the future.
+4. **Type safety**: Strict TypeScript usage.
+5. **Simplicity**: Keep it clean and readable.
+
+> [!IMPORTANT]
+> Never invent new architecture without a strong reason. Stick to the established patterns of the project.

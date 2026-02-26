@@ -62,7 +62,23 @@
     "assignedTo": "Nhân viên phụ trách",
     "expectedCloseDate": "Ngày kết thúc dự kiến",
     "createdAt": "Ngày tạo",
-    "action": "Hành động"
+    "action": "Hành động",
+    "detail": "Chi tiết Lead",
+    "overview": "Tổng quan",
+    "activities": "Hoạt động",
+    "documents": "Tài liệu",
+    "leadCode": "Mã Lead",
+    "source": "Nguồn Lead",
+    "notes": "Ghi chú/Mô tả",
+    "customerInfo": "Thông tin khách hàng",
+    "upcomingTasks": "Công việc sắp tới",
+    "addTask": "Thêm công việc",
+    "performedBy": "Thực hiện bởi",
+    "noDocuments": "Chưa có tài liệu nào.",
+    "convert": "Chuyển thành khách hàng",
+    "reject": "Đánh dấu thất bại",
+    "phone": "Số điện thoại",
+    "email": "Email"
   },
   "ProfilePage": {
     "title": "Thông tin cá nhân",
@@ -124,6 +140,9 @@
     "month": "Tháng",
     "start date": "Ngày bắt đầu",
     "end date": "Ngày kết thúc",
-    "loadMore": "Xem thêm"
+    "loadMore": "Xem thêm",
+    "viewMore": "Xem thêm hoạt động",
+    "newActivity": "Hoạt động mới",
+    "currencySuffix": "₫"
   }
 }
