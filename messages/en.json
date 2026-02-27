@@ -78,7 +78,17 @@
     "convert": "Convert to Customer",
     "reject": "Mark as Lost",
     "phone": "Phone",
-    "email": "Email"
+    "email": "Email",
+    "by": "by"
+  },
+  "ActivitiesPage": {
+    "type": "Type",
+    "description": "Description",
+    "lead": "Lead",
+    "customer": "Customer",
+    "createdBy": "Created By",
+    "createdAt": "Created At",
+    "action": "Action"
   },
   "ProfilePage": {
     "title": "Profile Information",
@@ -109,7 +119,8 @@
     "change-password": "Change Password",
     "my-leads": "My Leads",
     "my-customers": "My Customers",
-    "my-activities": "My Activities"
+    "my-activities": "My Activities",
+    "activities": "Activities"
   },
   "msg": {
     "Email already exists": "Email already exists",
@@ -140,6 +151,7 @@
     "month": "Month",
     "start date": "Start date",
     "end date": "End date",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "noData": "No data"
   }
 }

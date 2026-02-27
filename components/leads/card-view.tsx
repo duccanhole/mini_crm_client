@@ -21,7 +21,8 @@ import {
     MailOutlined,
     MoreOutlined,
     EnvironmentOutlined,
-    HolderOutlined
+    HolderOutlined,
+    InfoCircleOutlined
 } from '@ant-design/icons';
 import { Lead } from '@/types/model';
 import { useTranslations } from 'next-intl';
@@ -52,6 +53,10 @@ import { CSS } from '@dnd-kit/utilities';
 const { Text } = Typography;
 
 import { useUpdateLead } from '@/hooks/api/useLead';
+import { useRouter } from '@/i18n/routing';
+import { Grid } from 'antd';
+
+const { useBreakpoint } = Grid;
 
 interface LeadCardViewProps {
     leads?: Lead[];
@@ -71,7 +76,8 @@ const LeadCard = ({ lead, isOverlay = false, dragAttributes, dragListeners }: {
 }) => {
     const t = useTranslations('LeadsPage');
     const { token } = theme.useToken();
-
+    const router = useRouter();
+    const screens = useBreakpoint();
     return (
         <Card
             hoverable
@@ -109,7 +115,7 @@ const LeadCard = ({ lead, isOverlay = false, dragAttributes, dragListeners }: {
                         </Space>
                     </Flex>
                     {/* Drag Handle - Chỉ phần này mới có thể nắm để kéo */}
-                    <div
+                    {screens.md && <div
                         {...dragAttributes}
                         {...dragListeners}
                         style={{
@@ -124,7 +130,7 @@ const LeadCard = ({ lead, isOverlay = false, dragAttributes, dragListeners }: {
                         className="rounded-md p-2"
                     >
                         <HolderOutlined style={{ fontSize: 16 }} />
-                    </div>
+                    </div>}
                 </Flex>
             }
             actions={[
@@ -135,7 +141,7 @@ const LeadCard = ({ lead, isOverlay = false, dragAttributes, dragListeners }: {
                     <Button type="text" size="small" icon={<MailOutlined style={{ color: token.colorTextTertiary }} />} />
                 </Tooltip>,
                 <Tooltip title="Xem chi tiết" key="more">
-                    <Button type="text" size="small" icon={<MoreOutlined style={{ color: token.colorTextTertiary }} />} />
+                    <Button type="text" size="small" icon={<InfoCircleOutlined style={{ color: token.colorTextTertiary }} onClick={() => router.push(`/sale/leads/view?id=${lead.id}`)} />} />
                 </Tooltip>,
             ]}
         >

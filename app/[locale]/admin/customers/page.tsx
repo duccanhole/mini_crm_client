@@ -1,8 +1,9 @@
 import CustomersViewPage from "@/components/pages/customers/view";
+import { UserRole } from "@/types/model";
 
 const Page = () => {
     return (
-        <CustomersViewPage />
+        <CustomersViewPage role={UserRole.ADMIN} />
     );
 };
 

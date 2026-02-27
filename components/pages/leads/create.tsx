@@ -8,6 +8,7 @@ import { useCreateLead } from '@/hooks/api/useLead';
 import { useGetCustomers } from '@/hooks/api/useCustomer';
 import { useGetUsers } from '@/hooks/api/useUser';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useSearchParams } from 'next/navigation';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { LeadDTO } from '@/types/api';
 import dayjs from '@/lib/dayjs';
@@ -19,6 +20,8 @@ const LeadCreatePage = () => {
     const t = useTranslations('LeadsPage');
     const tCommon = useTranslations('common');
     const [form] = Form.useForm();
+    const searchParams = useSearchParams();
+    const queryAssignedToId = searchParams.get('assignedToId');
 
     const [customerSearch, setCustomerSearch] = useState('');
     const debouncedCustomerSearch = useDebounce(customerSearch, 500);
@@ -73,7 +76,10 @@ const LeadCreatePage = () => {
                     layout="vertical"
                     onFinish={onFinish}
                     autoComplete="off"
-                    initialValues={{ status: 'NEW' }}
+                    initialValues={{
+                        status: 'NEW',
+                        assignedToId: queryAssignedToId ? Number(queryAssignedToId) || queryAssignedToId : undefined
+                    }}
                 >
                     <Form.Item
                         name="customerId"
@@ -134,6 +140,7 @@ const LeadCreatePage = () => {
                             onSearch={setUserSearch}
                             placeholder={t('assignedTo')}
                             loading={isFetchingUsers}
+                            disabled={!!queryAssignedToId}
                         >
                             {usersResponse?.data?.content?.map((user: any) => (
                                 <Option key={user.id} value={user.id}>

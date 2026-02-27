@@ -148,7 +148,7 @@ const UserDetailPage = () => {
                                 htmlType="submit"
                                 loading={updateMutation.isPending}
                             >
-                                {tCommon('confirm')}
+                                {tCommon('save')}
                             </Button>
                         </Space>
                     </Form.Item>

@@ -30,7 +30,7 @@ export const useLogin = () => {
             router.push(`/${locale}/admin/users`);
             break;
           case 'sale':
-            router.push(`/${locale}/sale/my-leads`);
+            router.push(`/${locale}/sale/customers`);
             break;
           default:
             break;

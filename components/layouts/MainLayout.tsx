@@ -63,6 +63,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
                 key: 'lead',
                 label: t('leads'),
             },
+            {
+                key: 'activity',
+                label: t('activities'),
+            },
         ],
         manager: [
             {
@@ -76,6 +80,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
             {
                 key: 'lead',
                 label: t('leads'),
+            },
+            {
+                key: 'activity',
+                label: t('activities'),
             },
         ],
         sale: [
@@ -135,6 +143,18 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
                 break;
             case 'lead':
                 router.push('/admin/leads');
+                break;
+            case 'activity':
+                router.push('/admin/activities');
+                break;
+            case 'my-leads':
+                router.push('/sale/leads');
+                break;
+            case 'my-customers':
+                router.push('/sale/customers');
+                break;
+            case 'my-activities':
+                router.push('/sale/activities');
                 break;
             case 'logout':
                 modal.confirm({

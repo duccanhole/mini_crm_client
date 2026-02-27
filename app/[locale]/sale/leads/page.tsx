@@ -15,6 +15,7 @@ import { Lead } from '@/types/model';
 import { useGetLeads } from '@/hooks/api/useLead';
 import { SearchQueryParams } from '@/types/api';
 import { useRouter } from '@/i18n/routing';
+import { useUserInfo } from '@/hooks/useUserInfo';
 
 const { RangePicker } = DatePicker;
 
@@ -34,6 +35,7 @@ export default function MyLeadsPage() {
     const [page, setPage] = useState(0);
     const [leads, setLeads] = useState<Lead[]>([]);
 
+    const user = useUserInfo();
     const queryParams: SearchQueryParams = {
         page: page,
         size: DEFAULT_PAGE_SIZE,
@@ -111,7 +113,7 @@ export default function MyLeadsPage() {
                     />
                     <Button
                         type="primary"
-                        onClick={() => router.push('/sale/leads/new')}
+                        onClick={() => router.push(`/sale/leads/new?assignedToId=${user?.id}`)}
                     >
                         {tCommon('add new')}
                     </Button>

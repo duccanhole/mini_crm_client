@@ -10,6 +10,7 @@ import { CustomerDTO } from '@/types/api';
 import { VN_PHONE_REGEX } from '@/lib/validation';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useGetUsers } from '@/hooks/api/useUser';
+import { useSearchParams } from 'next/navigation';
 
 const { TextArea } = Input;
 
@@ -21,6 +22,8 @@ const CustomerCreatePage = () => {
     const tCommon = useTranslations('common');
     const tRegister = useTranslations('RegisterPage');
     const [form] = Form.useForm();
+    const searchParams = useSearchParams();
+    const querySaleId = searchParams.get('saleId');
 
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -39,6 +42,7 @@ const CustomerCreatePage = () => {
                 phone: values.phone,
                 company: values.company,
                 notes: values.notes,
+                saleId: values.saleId,
             };
             await createMutation.mutateAsync(createData);
             router.back();
@@ -72,6 +76,9 @@ const CustomerCreatePage = () => {
                     layout="vertical"
                     onFinish={onFinish}
                     autoComplete="off"
+                    initialValues={{
+                        saleId: querySaleId ? Number(querySaleId) || querySaleId : undefined
+                    }}
                 >
                     <Form.Item
                         name="name"
@@ -118,6 +125,7 @@ const CustomerCreatePage = () => {
                             showSearch={{ filterOption: false, onSearch: onSearchSale }}
                             placeholder={t('saleId')}
                             loading={isFetchingUsers}
+                            disabled={!!querySaleId}
                         >
                             {usersResponse?.data?.content?.map((user: any) => (
                                 <Option key={user.id} value={user.id}>

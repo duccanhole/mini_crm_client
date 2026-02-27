@@ -30,7 +30,7 @@ const LeadsViewPage = () => {
             dataIndex: ['customer', 'name'],
             fixed: 'left',
             key: 'customer',
-            render: (text: string, record: Lead) => <a onClick={() => router.push(`/admin/leads/${record.id}`)}>{text || record.customer?.name || '-'}</a>,
+            render: (text: string, record: Lead) => <a onClick={() => router.push(`/admin/leads/view?id=${record.id}`)}>{text || record.customer?.name || '-'}</a>,
             width: 200,
         },
         {

@@ -3,18 +3,27 @@
 import React, { useState } from 'react';
 import { Table, Space, Button, App } from 'antd';
 import { useDeleteCustomer, useGetCustomers, customerKeys } from '@/hooks/api/useCustomer';
-import { Customer, User } from '@/types/model';
+import { Customer, User, UserRole } from '@/types/model';
 import { SearchQueryParams } from '@/types/api';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@/i18n/routing';
 import { title } from 'process';
+import { useUserInfo } from '@/hooks/useUserInfo';
 
-const CustomersViewPage = () => {
-    const [pagination, setPagination] = useState<SearchQueryParams>({
-        page: 0,
-        size: 10,
-    });
+interface CustomersViewPageProps {
+    role?: string,
+    query?: SearchQueryParams
+}
+
+const defaultQuery: SearchQueryParams = {
+    page: 0,
+    size: 10,
+}
+
+const CustomersViewPage = (props: CustomersViewPageProps) => {
+    const { role, query } = props;
+    const [pagination, setPagination] = useState<SearchQueryParams>({ ...defaultQuery, ...query });
 
     const tCustomersPage = useTranslations('CustomersPage');
     const tCommon = useTranslations('common');
@@ -24,13 +33,15 @@ const CustomersViewPage = () => {
     const { data: customersData, isLoading } = useGetCustomers(pagination);
     const deleteCustomerMutation = useDeleteCustomer();
 
+    const user = useUserInfo();
+
     const columns: any[] = [
         {
             title: tCustomersPage('name'),
             dataIndex: 'name',
             fixed: 'left',
             key: 'name',
-            render: (text: string, record: Customer) => <a onClick={() => router.push(`/admin/customers/${record.id}`)}>{text}</a>,
+            render: (text: string, record: Customer) => <a onClick={() => router.push(`/${role}/customers/${record.id}`)}>{text}</a>,
             width: 200,
         },
         {
@@ -65,8 +76,8 @@ const CustomersViewPage = () => {
             key: 'sale',
             width: 250,
             render: (_: any, record: Customer) => (
-                record.sale?.email ? <Space size="middle" onClick={() => router.push(`/admin/users/${record.sale?.id}`)}>
-                    <a>{record.sale?.email}</a>
+                record.sale?.name ? <Space size="middle" onClick={() => router.push(`/${role}/users/${record.sale?.id}`)}>
+                    <a>{record.sale?.name}</a>
                 </Space> : '-'
             )
         },
@@ -76,7 +87,7 @@ const CustomersViewPage = () => {
             width: 150,
             render: (_: any, record: Customer) => (
                 <Space size="middle">
-                    <a onClick={() => router.push(`/admin/customers/${record.id}`)}>{tCommon('edit')}</a>
+                    <a onClick={() => router.push(`/${role}/customers/${record.id}`)}>{tCommon('edit')}</a>
                     <a style={{ color: 'red' }} onClick={() => handleDelete(record.id as string)}>{tCommon('delete')}</a>
                 </Space>
             ),
@@ -112,10 +123,18 @@ const CustomersViewPage = () => {
         });
     };
 
+    const handleCreate = () => {
+        if (role === UserRole.SALE) {
+            router.push(`/${role}/customers/new?saleId=${user?.id}`);
+        } else {
+            router.push(`/${role}/customers/new`);
+        }
+    }
+
     return (
         <div>
             <div className='flex justify-end !mb-4'>
-                <Button type="primary" onClick={() => router.push('/admin/customers/new')}>{tCommon('add new')}</Button>
+                <Button type="primary" onClick={handleCreate}>{tCommon('add new')}</Button>
             </div>
 
             <Table

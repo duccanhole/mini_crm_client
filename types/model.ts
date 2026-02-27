@@ -58,3 +58,9 @@ export interface Notification {
     metaData: string;
     createdAt: string;
 }
+
+export enum UserRole {
+    ADMIN = 'admin',
+    SALE = 'sale',
+    MANAGER = 'manager',
+}

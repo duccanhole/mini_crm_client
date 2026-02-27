@@ -78,7 +78,17 @@
     "convert": "Chuyển thành khách hàng",
     "reject": "Đánh dấu thất bại",
     "phone": "Số điện thoại",
-    "email": "Email"
+    "email": "Email",
+    "by": "bởi"
+  },
+  "ActivitiesPage": {
+    "type": "Loại",
+    "description": "Mô tả",
+    "lead": "Cơ hội (Lead)",
+    "customer": "Khách hàng",
+    "createdBy": "Người tạo",
+    "createdAt": "Ngày tạo",
+    "action": "Hành động"
   },
   "ProfilePage": {
     "title": "Thông tin cá nhân",
@@ -108,7 +118,8 @@
     "change-password": "Đổi mật khẩu",
     "my-leads": "Khách hàng tiềm năng của tôi",
     "my-customers": "Khách hàng của tôi",
-    "my-activities": "Hoạt động của tôi"
+    "my-activities": "Hoạt động của tôi",
+    "activities": "Hoạt động"
   },
   "msg": {
     "Email already exists": "Email đã tồn tại",
@@ -143,6 +154,7 @@
     "loadMore": "Xem thêm",
     "viewMore": "Xem thêm hoạt động",
     "newActivity": "Hoạt động mới",
-    "currencySuffix": "₫"
+    "currencySuffix": "₫",
+    "noData": "Không có dữ liệu"
   }
 }

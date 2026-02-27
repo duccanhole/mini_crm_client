@@ -16,7 +16,13 @@ import {
     Flex,
     Badge,
     Spin,
-    Empty
+    Empty,
+    Modal,
+    Form,
+    Input,
+    Select,
+    App,
+    Grid
 } from 'antd';
 import {
     ArrowLeftOutlined,
@@ -32,7 +38,8 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import dayjs from '@/lib/dayjs';
 import { useGetLead } from '@/hooks/api/useLead';
-import { useGetActivities } from '@/hooks/api/useActivity';
+import { useGetActivities, useCreateActivity, activityKeys } from '@/hooks/api/useActivity';
+import { useQueryClient } from '@tanstack/react-query';
 
 const { Title, Text } = Typography;
 
@@ -55,12 +62,19 @@ const LeadDetailPage = () => {
     const searchParams = useSearchParams();
     const id = searchParams.get('id');
     const t = useTranslations('LeadsPage');
+    const tActivitiesPage = useTranslations('ActivitiesPage');
     const tCommon = useTranslations('common');
     const { token } = theme.useToken();
 
     // AI API Hooks
     const { data: leadResponse, isLoading: isFetchingLead } = useGetLead(id || '');
     const { data: activitiesResponse, isLoading: isFetchingActivities } = useGetActivities({ leadId: id || undefined } as any);
+    const createActivityMutation = useCreateActivity();
+    const queryClient = useQueryClient();
+    const { message } = App.useApp();
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [form] = Form.useForm();
 
     const lead = leadResponse?.data;
     const activities = activitiesResponse?.data?.content || [];
@@ -80,6 +94,20 @@ const LeadDetailPage = () => {
             </Flex>
         );
     }
+
+    const handleCreateActivity = async (values: any) => {
+        try {
+            await createActivityMutation.mutateAsync({
+                leadId: id as string,
+                ...values
+            });
+            setIsModalOpen(false);
+            form.resetFields();
+            queryClient.invalidateQueries({ queryKey: activityKeys.lists() });
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     return (
         <div style={{ minHeight: '100vh' }}>
@@ -207,7 +235,14 @@ const LeadDetailPage = () => {
                             bordered={false}
                             className="shadow-sm"
                             style={{ minHeight: '100%' }}
-                            extra={<Button type="primary">{tCommon('newActivity')}</Button>}
+                            extra={
+                                <Button
+                                    type="primary"
+                                    onClick={() => setIsModalOpen(true)}
+                                >
+                                    {tCommon('newActivity')}
+                                </Button>
+                            }
                         >
                             {isFetchingActivities ? (
                                 <Flex justify="center" style={{ padding: token.paddingMD }}><Spin /></Flex>
@@ -219,18 +254,55 @@ const LeadDetailPage = () => {
                                             <Flex vertical gap={token.marginXXS}>
                                                 <Text strong>{act.type}</Text>
                                                 <Text style={{ fontSize: token.fontSizeSM }}>{act.description}</Text>
-                                                <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{dayjs(act.createdAt).format('DD/MM HH:mm')}</Text>
+                                                <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{t('by')} {act.createdBy.name} - {dayjs(act.createdAt).format('DD/MM HH:mm')}</Text>
                                             </Flex>
                                         ),
                                     }))}
                                 />
                             ) : (
-                                <Empty description={t('noDocuments')} />
+                                <Empty description={tCommon('noData')} />
                             )}
                         </Card>
                     </Col>
                 </Row>
             </Flex>
+
+            <Modal
+                title={tCommon('newActivity')}
+                open={isModalOpen}
+                onCancel={() => setIsModalOpen(false)}
+                onOk={() => form.submit()}
+                confirmLoading={createActivityMutation.isPending}
+                destroyOnClose
+            >
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={handleCreateActivity}
+                    initialValues={{ type: 'CALL' }}
+                >
+                    <Form.Item
+                        name="type"
+                        label={tActivitiesPage('type')}
+                        rules={[{ required: true }]}
+                    >
+                        <Select>
+                            <Select.Option value="CALL">Call</Select.Option>
+                            <Select.Option value="EMAIL">Email</Select.Option>
+                            <Select.Option value="MEETING">Meeting</Select.Option>
+                            <Select.Option value="NOTE">Note</Select.Option>
+                            <Select.Option value="TASK">Task</Select.Option>
+                            <Select.Option value="OTHER">Other</Select.Option>
+                        </Select>
+                    </Form.Item>
+                    <Form.Item
+                        name="description"
+                        label={t('notes')}
+                    >
+                        <Input.TextArea rows={4} />
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };
