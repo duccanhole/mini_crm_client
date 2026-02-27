@@ -41,6 +41,7 @@ export default function MyLeadsPage() {
         size: DEFAULT_PAGE_SIZE,
         createdFrom: dateRange?.[0]?.toISOString(),
         createdTo: dateRange?.[1]?.toISOString(),
+        assignedToId: user?.id,
     };
 
     const { data: leadsResponse, isLoading, isFetching, refetch } = useGetLeads(queryParams);
