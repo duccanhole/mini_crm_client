@@ -3,7 +3,7 @@ import { UserRole } from "@/types/model";
 
 const Page = () => {
     return (
-        <CustomersViewPage role={UserRole.ADMIN} />
+        <CustomersViewPage role={UserRole.MANAGER} />
     );
 };
 

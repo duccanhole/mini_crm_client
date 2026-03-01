@@ -8,6 +8,8 @@ import { SearchQueryParams } from '@/types/api';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@/i18n/routing';
+import { useUserInfo } from '@/hooks/useUserInfo';
+import { hasPermission } from '@/lib/rbac';
 
 const UsersPage = () => {
     const [pagination, setPagination] = useState<SearchQueryParams>({
@@ -22,9 +24,67 @@ const UsersPage = () => {
 
     const queryClient = useQueryClient();
     const router = useRouter();
+    const user = useUserInfo();
+    const role = user?.role;
+
     const { data: usersData, isLoading } = useGetUsers(pagination);
     const deleteUserMutation = useDeleteUser();
     const resetPasswordMutation = useResetPassword();
+
+    const { modal } = App.useApp();
+
+    const handleTableChange = (newPagination: any) => {
+        setPagination({
+            ...pagination,
+            page: newPagination.current - 1,
+            size: newPagination.pageSize,
+        });
+    };
+
+    const handleDelete = (id: string) => {
+        modal.confirm({
+            title: tCommon('deleteTitle'),
+            content: tCommon('deleteConfirm'),
+            okText: tCommon('confirm'),
+            cancelText: tCommon('cancel'),
+            onOk: async () => {
+                try {
+                    await deleteUserMutation.mutateAsync(id);
+                    queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+                } catch (error) {
+                    console.log(error);
+                }
+            },
+            okButtonProps: { danger: true },
+            centered: true,
+        });
+    };
+
+    const handleResetPassword = (id: string) => {
+        modal.confirm({
+            title: tUsersPage('resetPasswordTitle'),
+            content: tUsersPage('resetPasswordConfirm'),
+            okText: tCommon('confirm'),
+            cancelText: tCommon('cancel'),
+            onOk: async () => {
+                try {
+                    await resetPasswordMutation.mutateAsync(id);
+                } catch (error) {
+                    console.log(error);
+                }
+            },
+            okButtonProps: { color: 'orange' },
+            centered: true,
+        });
+    };
+
+    useEffect(() => {
+        const user = localStorage.getItem('user');
+        if (user) {
+            const { email } = JSON.parse(user);
+            setUserEmail(email);
+        }
+    }, []);
 
     const columns: any[] = [
         {
@@ -44,7 +104,7 @@ const UsersPage = () => {
         {
             title: tUsersPage('phone'),
             dataIndex: 'phone',
-            key: 'phone', // Note: User model has 'phone', check if response actually has it or 'phoneNumber'
+            key: 'phone',
             render: (text: string, record: User) => text || (record as any).phoneNumber || '-',
             width: 150,
         },
@@ -104,69 +164,19 @@ const UsersPage = () => {
             width: 300,
             render: (_: any, record: User) => (
                 <Space size="middle">
-                    <a onClick={() => router.push(`/admin/users/${record.id}`)}>{tCommon('edit')}</a>
-                    {userEmail !== record.email && <a style={{ color: 'red' }} onClick={() => handleDelete(record.id as string)}>{tCommon('delete')}</a>}
-                    <a style={{ color: 'orange' }} onClick={() => handleResetPassword(record.id as string)}>{tUsersPage('resetPassword')}</a>
+                    {hasPermission(role, 'users', 'edit') && (
+                        <a onClick={() => router.push(`/admin/users/${record.id}`)}>{tCommon('edit')}</a>
+                    )}
+                    {hasPermission(role, 'users', 'delete') && userEmail !== record.email && (
+                        <a style={{ color: 'red' }} onClick={() => handleDelete(record.id as string)}>{tCommon('delete')}</a>
+                    )}
+                    {hasPermission(role, 'users', 'edit') && (
+                        <a style={{ color: 'orange' }} onClick={() => handleResetPassword(record.id as string)}>{tUsersPage('resetPassword')}</a>
+                    )}
                 </Space>
             ),
         },
     ];
-
-    const handleTableChange = (newPagination: any) => {
-        setPagination({
-            ...pagination,
-            page: newPagination.current - 1, // AntD is 1-based, API is likely 0-based
-            size: newPagination.pageSize,
-        });
-    };
-
-    const { modal } = App.useApp();
-
-    const handleDelete = (id: string) => {
-        modal.confirm({
-            title: tCommon('deleteTitle'),
-            content: tCommon('deleteConfirm'),
-            okText: tCommon('confirm'),
-            cancelText: tCommon('cancel'),
-            onOk: async () => {
-                // console.log('delete, redirect to', `/admin/users`)
-                // AuthService.logout();
-                // router.push(`/admin/users`);
-                try {
-                    await deleteUserMutation.mutateAsync(id);
-                    queryClient.invalidateQueries({ queryKey: userKeys.lists() });
-                } catch (error) {
-                    console.log(error);
-                }
-
-            },
-            okButtonProps: { danger: true },
-            centered: true,
-        });
-    };
-
-    const handleEdit = (id: string) => {
-        console.log(id);
-    };
-
-    const handleResetPassword = (id: string) => {
-        console.log(id);
-        modal.confirm({
-            title: tUsersPage('resetPasswordTitle'),
-            content: tUsersPage('resetPasswordConfirm'),
-            okText: tCommon('confirm'),
-            cancelText: tCommon('cancel'),
-            onOk: async () => {
-                try {
-                    await resetPasswordMutation.mutateAsync(id);
-                } catch (error) {
-                    console.log(error);
-                }
-            },
-            okButtonProps: { color: 'orange' },
-            centered: true,
-        });
-    };
 
     useEffect(() => {
         const user = localStorage.getItem('user');
@@ -179,7 +189,9 @@ const UsersPage = () => {
     return (
         <div>
             <div className='flex justify-end !mb-4'>
-                <Button type="primary" onClick={() => router.push('/admin/users/new')}>{tCommon('add new')}</Button>
+                {hasPermission(role, 'users', 'edit') && (
+                    <Button type="primary" onClick={() => router.push('/admin/users/new')}>{tCommon('add new')}</Button>
+                )}
             </div>
 
             <Table

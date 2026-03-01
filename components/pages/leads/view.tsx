@@ -9,6 +9,9 @@ import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@/i18n/routing';
 import dayjs from '@/lib/dayjs';
+import { useUserInfo } from '@/hooks/useUserInfo';
+import { hasPermission } from '@/lib/rbac';
+import { UserRole } from '@/types/model';
 
 const LeadsViewPage = () => {
     const [pagination, setPagination] = useState<SearchQueryParams>({
@@ -21,6 +24,8 @@ const LeadsViewPage = () => {
 
     const queryClient = useQueryClient();
     const router = useRouter();
+    const user = useUserInfo();
+    const currentRole = user?.role || UserRole.ADMIN;
     const { data: leadsData, isLoading } = useGetLeads(pagination);
     const deleteLeadMutation = useDeleteLead();
 
@@ -30,7 +35,7 @@ const LeadsViewPage = () => {
             dataIndex: ['customer', 'name'],
             fixed: 'left',
             key: 'customer',
-            render: (text: string, record: Lead) => <a onClick={() => router.push(`/admin/leads/view?id=${record.id}`)}>{text || record.customer?.name || '-'}</a>,
+            render: (text: string, record: Lead) => <a onClick={() => router.push(`/${currentRole}/leads/view?id=${record.id}`)}>{text || record.customer?.name || '-'}</a>,
             width: 200,
         },
         {
@@ -63,7 +68,7 @@ const LeadsViewPage = () => {
             width: 200,
             render: (_: any, record: Lead) =>
             (
-                record.assignedTo?.email ? <Space size="middle" onClick={() => router.push(`/admin/users/${record.assignedTo?.id}`)}>
+                record.assignedTo?.email ? <Space size="middle" onClick={() => router.push(`/${currentRole}/users/${record.assignedTo?.id}`)}>
                     <a>{record.assignedTo?.email}</a>
                 </Space> : '-'
             )
@@ -81,8 +86,12 @@ const LeadsViewPage = () => {
             width: 150,
             render: (_: any, record: Lead) => (
                 <Space size="middle">
-                    <a onClick={() => router.push(`/admin/leads/${record.id}`)}>{tCommon('edit')}</a>
-                    <a style={{ color: 'red' }} onClick={() => handleDelete(record.id as string)}>{tCommon('delete')}</a>
+                    {hasPermission(currentRole, 'leads', 'edit') && (
+                        <a onClick={() => router.push(`/${currentRole}/leads/${record.id}`)}>{tCommon('edit')}</a>
+                    )}
+                    {hasPermission(currentRole, 'leads', 'delete') && (
+                        <a style={{ color: 'red' }} onClick={() => handleDelete(record.id as string)}>{tCommon('delete')}</a>
+                    )}
                 </Space>
             ),
         },
@@ -120,7 +129,9 @@ const LeadsViewPage = () => {
     return (
         <div>
             <div className='flex justify-end !mb-4'>
-                <Button type="primary" onClick={() => router.push('/admin/leads/new')}>{tCommon('add new')}</Button>
+                {hasPermission(currentRole, 'leads', 'edit') && (
+                    <Button type="primary" onClick={() => router.push(`/${currentRole}/leads/new`)}>{tCommon('add new')}</Button>
+                )}
             </div>
 
             <Table

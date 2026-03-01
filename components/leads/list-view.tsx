@@ -9,6 +9,8 @@ import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@/i18n/routing';
 import dayjs from '@/lib/dayjs';
+import { useUserInfo } from '@/hooks/useUserInfo';
+import { hasPermission } from '@/lib/rbac';
 
 interface LeadListViewProps {
     leads?: Lead[];
@@ -35,6 +37,8 @@ const LeadListView = ({
 
     const queryClient = useQueryClient();
     const router = useRouter();
+    const user = useUserInfo();
+    const currentRole = role || user?.role || 'admin';
     const deleteLeadMutation = useDeleteLead();
 
     const columns: any[] = [
@@ -43,7 +47,7 @@ const LeadListView = ({
             dataIndex: ['customer', 'name'],
             fixed: 'left',
             key: 'customer',
-            render: (text: string, record: Lead) => <a onClick={() => router.push(`/admin/leads/${record.id}`)}>{text || record.customer?.name || '-'}</a>,
+            render: (text: string, record: Lead) => <a onClick={() => router.push(`/${role}/leads/${record.id}`)}>{text || record.customer?.name || '-'}</a>,
             width: 200,
         },
         {
@@ -102,8 +106,8 @@ const LeadListView = ({
             width: 200,
             render: (_: any, record: Lead) =>
             (
-                record.assignedTo?.email ? <Space size="middle" onClick={() => router.push(`/admin/users/${record.assignedTo?.id}`)}>
-                    <a>{record.assignedTo?.email}</a>
+                record.assignedTo?.name ? <Space size="middle" onClick={() => router.push(`/${role}/users/${record.assignedTo?.id}`)}>
+                    <a>{record.assignedTo?.name}</a>
                 </Space> : '-'
             )
         },
@@ -125,8 +129,12 @@ const LeadListView = ({
             width: 150,
             render: (_: any, record: Lead) => (
                 <Space size="middle">
-                    <a onClick={() => router.push(`/${role}/leads/${record.id}`)}>{tCommon('edit')}</a>
-                    <a style={{ color: 'red' }} onClick={() => handleDelete(record.id as string)}>{tCommon('delete')}</a>
+                    {hasPermission(user?.role, 'leads', 'edit') && (
+                        <a onClick={() => router.push(`/${role}/leads/${record.id}`)}>{tCommon('edit')}</a>
+                    )}
+                    {hasPermission(user?.role, 'leads', 'delete') && (
+                        <a style={{ color: 'red' }} onClick={() => handleDelete(record.id as string)}>{tCommon('delete')}</a>
+                    )}
                 </Space>
             ),
         },

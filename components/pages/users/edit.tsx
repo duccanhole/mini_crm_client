@@ -1,84 +1,66 @@
-'use client'
+'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, Card, Space, Spin, App, Select } from 'antd';
+import React, { useEffect } from 'react';
+import { Form, Input, Button, Card, Select, Space, Typography, Spin, App } from 'antd';
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
-import { useGetCustomer, useUpdateCustomer } from '@/hooks/api/useCustomer';
-import { useGetUsers } from '@/hooks/api/useUser';
-import { useDebounce } from '@/hooks/useDebounce';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import { CustomerDTO, SearchQueryParams } from '@/types/api';
+import { useGetUser, useUpdateUser } from '@/hooks/api/useUser';
+import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
+import { UserDTO } from '@/types/api';
 import { VN_PHONE_REGEX } from '@/lib/validation';
 import { useUserInfo } from '@/hooks/useUserInfo';
 import { hasPermission } from '@/lib/rbac';
-import { UserRole } from '@/types/model';
 
-const { TextArea } = Input;
+const { Title } = Typography;
 const { Option } = Select;
 
-const CustomerEditPage = () => {
+const UserEditPage = () => {
     const params = useParams();
     const router = useRouter();
     const id = params.id as string;
-    const t = useTranslations('CustomersPage');
+    const t = useTranslations('UsersPage');
     const tCommon = useTranslations('common');
     const tRegister = useTranslations('RegisterPage');
+    const { message } = App.useApp();
     const [form] = Form.useForm();
 
-    const { data: customerResponse, isLoading: isFetching } = useGetCustomer(id);
-    const [searchTerm, setSearchTerm] = useState('');
-    const debouncedSearchTerm = useDebounce(searchTerm, 500);
-
-    const { data: usersResponse, isLoading: isFetchingUsers } = useGetUsers({
-        size: 1000,
-        search: debouncedSearchTerm
-    });
-
+    const { data: userResponse, isLoading: isFetching } = useGetUser(id);
+    const updateMutation = useUpdateUser();
     const user = useUserInfo();
-    const canEditSale = () => {
-        const permission = hasPermission(user?.role, 'customers', 'edit');
-        const isAssignedToUser = user?.id === customerResponse?.data.sale?.id;
-        if (user?.role === UserRole.SALE) return isAssignedToUser && permission;
-        return permission;
-    };
-
-    const updateMutation = useUpdateCustomer();
+    const currentRole = user?.role;
 
     useEffect(() => {
-        if (customerResponse?.data) {
-            const customer = customerResponse.data;
+        if (userResponse?.data) {
+            const user = userResponse.data;
             form.setFieldsValue({
-                name: customer.name,
-                email: customer.email,
-                phone: customer.phone,
-                company: customer.company,
-                notes: customer.notes,
-                saleId: customer.sale?.id,
+                name: user.name,
+                email: user.email,
+                phoneNumber: (user as any).phone || (user as any).phoneNumber,
+                role: user.role,
+                status: user.status,
             });
         }
-    }, [customerResponse, form]);
+    }, [userResponse, form]);
 
     const onFinish = async (values: any) => {
         try {
-            const updateData: CustomerDTO = {
+            const updateData: UserDTO = {
                 name: values.name,
                 email: values.email,
-                phone: values.phone,
-                company: values.company,
-                notes: values.notes,
-                saleId: values.saleId,
+                phoneNumber: values.phoneNumber,
+                role: values.role,
+                status: values.status,
             };
+            if (!updateData.phoneNumber) {
+                delete updateData.phoneNumber;
+            }
             await updateMutation.mutateAsync({ id, values: updateData });
+            // The hook already shows success message
         } catch (error) {
             console.error('Update failed:', error);
         }
     };
-
-    const onSearchSale = (value: string) => {
-        setSearchTerm(value);
-    }
 
     if (isFetching) {
         return (
@@ -109,14 +91,14 @@ const CustomerEditPage = () => {
                     layout="vertical"
                     onFinish={onFinish}
                     autoComplete="off"
-                    disabled={!canEditSale() || isFetching || updateMutation.isPending}
+                    disabled={updateMutation.isPending || !hasPermission(currentRole, 'users', 'edit')}
                 >
                     <Form.Item
                         name="name"
                         label={t('name')}
                         rules={[{ required: true, message: tRegister('nameRequired') }]}
                     >
-                        <Input placeholder={t('name')} />
+                        <Input placeholder={tRegister('name')} />
                     </Form.Item>
 
                     <Form.Item
@@ -127,49 +109,41 @@ const CustomerEditPage = () => {
                             { type: 'email', message: tRegister('emailInvalid') }
                         ]}
                     >
-                        <Input placeholder={t('email')} />
+                        <Input placeholder={tRegister('email')} />
                     </Form.Item>
 
                     <Form.Item
-                        name="phone"
+                        name="phoneNumber"
                         label={t('phone')}
                         rules={[
-                            { required: true, message: tRegister('phoneRequired') },
-                            { pattern: VN_PHONE_REGEX, message: tRegister('phoneInvalid') }
-                        ]}
+                            {
+                                pattern: VN_PHONE_REGEX, message: tRegister('phoneInvalid')
+                            }]}
                     >
-                        <Input placeholder={t('phone')} />
+                        <Input placeholder={tRegister('phone')} />
                     </Form.Item>
 
                     <Form.Item
-                        name="company"
-                        label={t('company')}
+                        name="role"
+                        label={t('role')}
+                        rules={[{ required: true, message: t('roleRequired') || 'Role is required' }]}
                     >
-                        <Input placeholder={t('company')} />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="saleId"
-                        label={t('saleId')}
-                    >
-                        <Select
-                            showSearch={{ filterOption: false, onSearch: onSearchSale }}
-                            placeholder={t('saleId')}
-                            loading={isFetchingUsers}
-                        >
-                            {usersResponse?.data?.content?.map((user: any) => (
-                                <Option key={user.id} value={user.id}>
-                                    {user.name} ({user.email})
-                                </Option>
-                            ))}
+                        <Select placeholder={t('role')}>
+                            <Option value="admin">ADMIN</Option>
+                            <Option value="manager">MANAGER</Option>
+                            <Option value="sale">SALE</Option>
                         </Select>
                     </Form.Item>
 
                     <Form.Item
-                        name="notes"
-                        label={t('notes')}
+                        name="status"
+                        label={t('status')}
+                        rules={[{ required: true, message: t('statusRequired') || 'Status is required' }]}
                     >
-                        <TextArea rows={4} placeholder={t('notes')} maxLength={150} showCount />
+                        <Select placeholder={t('status')}>
+                            <Option value="active">ACTIVE</Option>
+                            <Option value="inactive">INACTIVE</Option>
+                        </Select>
                     </Form.Item>
 
                     <Form.Item className="mb-0 mt-8">
@@ -189,4 +163,4 @@ const CustomerEditPage = () => {
     );
 };
 
-export default CustomerEditPage;
+export default UserEditPage;

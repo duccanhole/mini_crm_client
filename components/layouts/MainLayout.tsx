@@ -139,13 +139,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
                 router.push('/admin/users');
                 break;
             case 'customer':
-                router.push('/admin/customers');
+                router.push(`/${userRole}/customers`);
                 break;
             case 'lead':
-                router.push('/admin/leads');
+                router.push(`/${userRole}/leads`);
                 break;
             case 'activity':
-                router.push('/admin/activities');
+                router.push(`/${userRole}/activities`);
                 break;
             case 'my-leads':
                 router.push('/sale/leads');
@@ -155,6 +155,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
                 break;
             case 'my-activities':
                 router.push('/sale/activities');
+                break;
+            case 'dashboard':
+                router.push('/manager/dashboard');
                 break;
             case 'logout':
                 modal.confirm({

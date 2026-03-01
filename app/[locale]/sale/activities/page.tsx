@@ -2,6 +2,7 @@
 
 import ActivitiesViewPage from "@/components/pages/activities/view"
 import { useUserInfo } from "@/hooks/useUserInfo"
+import { UserRole } from "@/types/model";
 
 const ActivitiesPage = () => {
     const user = useUserInfo();
@@ -12,7 +13,7 @@ const ActivitiesPage = () => {
     return (
         <ActivitiesViewPage query={{
             createdById: user?.id
-        }} />
+        }} role={UserRole.SALE} />
     )
 }
 

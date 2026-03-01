@@ -57,7 +57,7 @@ const getStatusColor = (status?: string) => {
     }
 };
 
-const LeadDetailPage = () => {
+const LeadDetailPage = ({ role }: { role?: string }) => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const id = searchParams.get('id');
@@ -134,7 +134,7 @@ const LeadDetailPage = () => {
                                 className="shadow-sm"
                                 extra={
                                     <Button
-                                        onClick={() => router.push(`/admin/customers/${lead?.customer.id}`)}
+                                        onClick={() => router.push(`/${role}/customers/${lead?.customer.id}`)}
                                     >
                                         {tCommon('edit')}
                                     </Button>
@@ -181,7 +181,7 @@ const LeadDetailPage = () => {
                                 className="shadow-sm"
                                 extra={
                                     <Button
-                                        onClick={() => router.push(`/admin/leads/${id}`)}
+                                        onClick={() => router.push(`/${role}/leads/${id}`)}
                                     >
                                         {tCommon('edit')}
                                     </Button>
@@ -207,7 +207,7 @@ const LeadDetailPage = () => {
                                         <div style={{ fontWeight: 500 }}>
                                             <Space>
                                                 <Avatar size="small" icon={<UserOutlined />} />
-                                                <a href={`/admin/users/${lead?.assignedTo.id}`} onClick={(e) => e.stopPropagation()}>
+                                                <a href={`/${role}/users/${lead?.assignedTo.id}`} onClick={(e) => e.stopPropagation()}>
                                                     {lead?.assignedTo.name}
                                                 </a>
                                             </Space>
@@ -219,7 +219,7 @@ const LeadDetailPage = () => {
                                         <div style={{ fontWeight: 500 }}>
                                             <Space>
                                                 <CalendarOutlined style={{ color: token.colorWarning }} />
-                                                <Text>{lead?.expectedCloseDate ? dayjs(lead.expectedCloseDate).format('DD/MM/YYYY') : '-'}</Text>
+                                                <Text>{lead?.expectedCloseDate ? dayjs(lead.expectedCloseDate).format('DD/MM/YYYY HH:mm') : '-'}</Text>
                                             </Space>
                                         </div>
                                     </Flex>

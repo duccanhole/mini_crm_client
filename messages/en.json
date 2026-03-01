@@ -152,6 +152,7 @@
     "start date": "Start date",
     "end date": "End date",
     "loadMore": "Load more",
-    "noData": "No data"
+    "noData": "No data",
+    "all": "All"
   }
 }

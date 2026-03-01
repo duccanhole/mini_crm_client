@@ -8,8 +8,9 @@ import { SearchQueryParams } from '@/types/api';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@/i18n/routing';
-import { title } from 'process';
 import { useUserInfo } from '@/hooks/useUserInfo';
+import { hasPermission } from '@/lib/rbac';
+import { title } from 'process';
 
 interface CustomersViewPageProps {
     role?: string,
@@ -35,13 +36,21 @@ const CustomersViewPage = (props: CustomersViewPageProps) => {
 
     const user = useUserInfo();
 
+    const onViewCustomer = (id: string) => {
+        let query = '';
+        if (user?.role === UserRole.SALE) {
+            query = `?saleId=${user.id}`;
+        }
+        router.push(`/${role}/customers/${id}${query}`);
+    }
+
     const columns: any[] = [
         {
             title: tCustomersPage('name'),
             dataIndex: 'name',
             fixed: 'left',
             key: 'name',
-            render: (text: string, record: Customer) => <a onClick={() => router.push(`/${role}/customers/${record.id}`)}>{text}</a>,
+            render: (text: string, record: Customer) => <a onClick={() => onViewCustomer(record.id as string)}>{text}</a>,
             width: 200,
         },
         {
@@ -87,8 +96,12 @@ const CustomersViewPage = (props: CustomersViewPageProps) => {
             width: 150,
             render: (_: any, record: Customer) => (
                 <Space size="middle">
-                    <a onClick={() => router.push(`/${role}/customers/${record.id}`)}>{tCommon('edit')}</a>
-                    <a style={{ color: 'red' }} onClick={() => handleDelete(record.id as string)}>{tCommon('delete')}</a>
+                    {hasPermission(user?.role, 'customers', 'edit') && (
+                        <a onClick={() => router.push(`/${role}/customers/${record.id}`)}>{tCommon('edit')}</a>
+                    )}
+                    {hasPermission(user?.role, 'customers', 'delete') && (
+                        <a style={{ color: 'red' }} onClick={() => handleDelete(record.id as string)}>{tCommon('delete')}</a>
+                    )}
                 </Space>
             ),
         },
@@ -134,7 +147,9 @@ const CustomersViewPage = (props: CustomersViewPageProps) => {
     return (
         <div>
             <div className='flex justify-end !mb-4'>
-                <Button type="primary" onClick={handleCreate}>{tCommon('add new')}</Button>
+                {hasPermission(user?.role, 'customers', 'edit') && (
+                    <Button type="primary" onClick={handleCreate}>{tCommon('add new')}</Button>
+                )}
             </div>
 
             <Table

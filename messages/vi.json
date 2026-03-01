@@ -108,9 +108,9 @@
     "newPasswordRequired": "Vui lòng nhập mật khẩu mới!"
   },
   "navigation": {
-    "dashboard": "Bảng điều khiển",
+    "dashboard": "Tổng quan",
     "users": "Người dùng",
-    "leads": "Khách hàng tiềm năng",
+    "leads": "Tiềm năng",
     "customers": "Khách hàng",
     "profile": "Hồ sơ",
     "settings": "Cài đặt",
@@ -155,6 +155,7 @@
     "viewMore": "Xem thêm hoạt động",
     "newActivity": "Hoạt động mới",
     "currencySuffix": "₫",
-    "noData": "Không có dữ liệu"
+    "noData": "Không có dữ liệu",
+    "all": "Tất cả"
   }
 }

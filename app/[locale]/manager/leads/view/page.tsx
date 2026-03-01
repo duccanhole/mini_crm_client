@@ -3,6 +3,6 @@ import { UserRole } from "@/types/model";
 
 export default function LeadsViewDetailPage() {
     return (
-        <LeadsViewDetail role={UserRole.SALE} />
+        <LeadsViewDetail role={UserRole.MANAGER} />
     )
 }

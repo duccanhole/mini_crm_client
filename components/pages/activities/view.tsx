@@ -9,9 +9,12 @@ import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@/i18n/routing';
 import dayjs from '@/lib/dayjs';
+import { useUserInfo } from '@/hooks/useUserInfo';
+import { hasPermission } from '@/lib/rbac';
 
 interface ActivitiesViewPageProps {
     query?: SearchQueryParams;
+    role?: string;
 }
 
 const defaultQuery: SearchQueryParams = {
@@ -19,7 +22,7 @@ const defaultQuery: SearchQueryParams = {
     size: 10,
 }
 
-const ActivitiesViewPage = ({ query }: ActivitiesViewPageProps) => {
+const ActivitiesViewPage = ({ query, role }: ActivitiesViewPageProps) => {
     const [pagination, setPagination] = useState<SearchQueryParams>({ ...defaultQuery, ...query });
 
     useEffect(() => {
@@ -31,6 +34,7 @@ const ActivitiesViewPage = ({ query }: ActivitiesViewPageProps) => {
 
     const queryClient = useQueryClient();
     const router = useRouter();
+    const user = useUserInfo();
     const { data: activitiesData, isLoading } = useGetActivities(pagination);
     const deleteActivityMutation = useDeleteActivity();
 
@@ -60,7 +64,7 @@ const ActivitiesViewPage = ({ query }: ActivitiesViewPageProps) => {
             width: 150,
             render: (_: any, record: Activity) => (
                 record.lead ? (
-                    <a onClick={() => router.push(`/admin/leads/view?id=${record.lead.id}`)}>
+                    <a onClick={() => router.push(`/${role}/leads/view?id=${record.lead.id}`)}>
                         Lead #{record.lead.id}
                     </a>
                 ) : '-'
@@ -73,7 +77,7 @@ const ActivitiesViewPage = ({ query }: ActivitiesViewPageProps) => {
             width: 200,
             render: (_: any, record: Activity) => (
                 record.lead?.customer ? (
-                    <a onClick={() => router.push(`/admin/customers/${record.lead.customer.id}`)}>
+                    <a onClick={() => router.push(`/${role}/customers/${record.lead.customer.id}`)}>
                         {record.lead.customer.name}
                     </a>
                 ) : '-'
@@ -86,7 +90,7 @@ const ActivitiesViewPage = ({ query }: ActivitiesViewPageProps) => {
             width: 200,
             render: (_: any, record: Activity) => (
                 record.createdBy?.email ? (
-                    <a onClick={() => router.push(`/admin/users/${record.createdBy.id}`)}>
+                    <a onClick={() => router.push(`/${role}/users/${record.createdBy.id}`)}>
                         {record.createdBy.name || record.createdBy.email}
                     </a>
                 ) : '-'
@@ -107,7 +111,9 @@ const ActivitiesViewPage = ({ query }: ActivitiesViewPageProps) => {
             render: (_: any, record: Activity) => (
                 <Space size="middle">
                     {/* <a onClick={() => router.push(`/admin/activities/${record.id}`)}>{tCommon('edit')}</a> */}
-                    <a style={{ color: 'red' }} onClick={() => handleDelete(record.id as string)}>{tCommon('delete')}</a>
+                    {hasPermission(user?.role, 'activities', 'delete') && (
+                        <a style={{ color: 'red' }} onClick={() => handleDelete(record.id as string)}>{tCommon('delete')}</a>
+                    )}
                 </Space>
             ),
         },

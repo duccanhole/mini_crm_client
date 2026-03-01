@@ -11,14 +11,11 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { CustomerDTO, SearchQueryParams } from '@/types/api';
 import { VN_PHONE_REGEX } from '@/lib/validation';
-import { useUserInfo } from '@/hooks/useUserInfo';
-import { hasPermission } from '@/lib/rbac';
-import { UserRole } from '@/types/model';
 
 const { TextArea } = Input;
 const { Option } = Select;
 
-const CustomerEditPage = () => {
+const CustomerDetailPage = () => {
     const params = useParams();
     const router = useRouter();
     const id = params.id as string;
@@ -35,14 +32,6 @@ const CustomerEditPage = () => {
         size: 1000,
         search: debouncedSearchTerm
     });
-
-    const user = useUserInfo();
-    const canEditSale = () => {
-        const permission = hasPermission(user?.role, 'customers', 'edit');
-        const isAssignedToUser = user?.id === customerResponse?.data.sale?.id;
-        if (user?.role === UserRole.SALE) return isAssignedToUser && permission;
-        return permission;
-    };
 
     const updateMutation = useUpdateCustomer();
 
@@ -109,7 +98,6 @@ const CustomerEditPage = () => {
                     layout="vertical"
                     onFinish={onFinish}
                     autoComplete="off"
-                    disabled={!canEditSale() || isFetching || updateMutation.isPending}
                 >
                     <Form.Item
                         name="name"
@@ -169,7 +157,7 @@ const CustomerEditPage = () => {
                         name="notes"
                         label={t('notes')}
                     >
-                        <TextArea rows={4} placeholder={t('notes')} maxLength={150} showCount />
+                        <TextArea rows={4} placeholder={t('notes')} />
                     </Form.Item>
 
                     <Form.Item className="mb-0 mt-8">
@@ -179,7 +167,7 @@ const CustomerEditPage = () => {
                                 htmlType="submit"
                                 loading={updateMutation.isPending}
                             >
-                                {tCommon('save')}
+                                {tCommon('confirm')}
                             </Button>
                         </Space>
                     </Form.Item>
@@ -189,4 +177,4 @@ const CustomerEditPage = () => {
     );
 };
 
-export default CustomerEditPage;
+export default CustomerDetailPage;

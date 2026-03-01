@@ -64,3 +64,13 @@ export enum UserRole {
     SALE = 'sale',
     MANAGER = 'manager',
 }
+
+/**
+ * Định nghĩa các Entity (Thực thể) trong hệ thống
+ */
+export type Entity = 'users' | 'customers' | 'leads' | 'activities';
+
+/**
+ * Định nghĩa các Action (Hành động) có thể thực hiện trên Entity
+ */
+export type Action = 'view' | 'edit' | 'delete';

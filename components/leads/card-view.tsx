@@ -57,6 +57,8 @@ import { useRouter } from '@/i18n/routing';
 import { Grid } from 'antd';
 
 const { useBreakpoint } = Grid;
+import { useUserInfo } from '@/hooks/useUserInfo';
+import { hasPermission } from '@/lib/rbac';
 
 interface LeadCardViewProps {
     leads?: Lead[];
@@ -68,13 +70,15 @@ interface LeadCardViewProps {
     role?: string;
 }
 
-const LeadCard = ({ lead, isOverlay = false, dragAttributes, dragListeners }: {
+const LeadCard = ({ lead, isOverlay = false, dragAttributes, dragListeners, role }: {
     lead: Lead,
     isOverlay?: boolean,
     dragAttributes?: any,
-    dragListeners?: any
+    dragListeners?: any,
+    role?: string
 }) => {
     const t = useTranslations('LeadsPage');
+    const tCommon = useTranslations('common');
     const { token } = theme.useToken();
     const router = useRouter();
     const screens = useBreakpoint();
@@ -140,8 +144,8 @@ const LeadCard = ({ lead, isOverlay = false, dragAttributes, dragListeners }: {
                 <Tooltip title={lead.customer.email} key="email">
                     <Button type="text" size="small" icon={<MailOutlined style={{ color: token.colorTextTertiary }} />} />
                 </Tooltip>,
-                <Tooltip title="Xem chi tiết" key="more">
-                    <Button type="text" size="small" icon={<InfoCircleOutlined style={{ color: token.colorTextTertiary }} onClick={() => router.push(`/sale/leads/view?id=${lead.id}`)} />} />
+                <Tooltip title={tCommon('viewDetail')} key="more">
+                    <Button type="text" size="small" icon={<InfoCircleOutlined style={{ color: token.colorTextTertiary }} onClick={() => router.push(`/${role}/leads/view?id=${lead.id}`)} />} />
                 </Tooltip>,
             ]}
         >
@@ -180,7 +184,7 @@ const LeadCard = ({ lead, isOverlay = false, dragAttributes, dragListeners }: {
     );
 };
 
-const SortableLeadCard = ({ lead }: { lead: Lead }) => {
+const SortableLeadCard = ({ lead, role }: { lead: Lead, role?: string }) => {
     const {
         attributes,
         listeners,
@@ -202,6 +206,7 @@ const SortableLeadCard = ({ lead }: { lead: Lead }) => {
                 lead={lead}
                 dragAttributes={attributes}
                 dragListeners={listeners}
+                role={role}
             />
         </div>
     );
@@ -241,6 +246,7 @@ const LeadCardView = ({
     role = 'admin'
 }: LeadCardViewProps) => {
     const { token } = theme.useToken();
+    const user = useUserInfo();
     const tCommon = useTranslations('common');
     const updateLeadMutation = useUpdateLead();
 
@@ -364,12 +370,17 @@ const LeadCardView = ({
 
         // 2. Gọi API cập nhật nếu trạng thái thay đổi
         if (finalLead && originalStatus && finalLead.status.toUpperCase() !== originalStatus) {
-            updateLeadMutation.mutate({
-                id: leadId,
-                values: {
-                    status: finalLead.status.toUpperCase()
-                }
-            });
+            if (hasPermission(user?.role, 'leads', 'edit')) {
+                updateLeadMutation.mutate({
+                    id: leadId,
+                    values: {
+                        status: finalLead.status.toUpperCase()
+                    }
+                });
+            } else {
+                // Phục hồi lại vị trí cũ nếu không có quyền
+                setLeads((items) => arrayMove(items, leads.findIndex(l => l.id === leadId), leads.findIndex(l => l.status.toUpperCase() === originalStatus)));
+            }
         }
 
         setOriginalStatus(null);
@@ -446,7 +457,7 @@ const LeadCardView = ({
                                             </Flex>
                                         ) : (
                                             groupedLeads[status].map(lead => (
-                                                <SortableLeadCard key={lead.id} lead={lead} />
+                                                <SortableLeadCard key={lead.id} lead={lead} role={role} />
                                             ))
                                         )}
                                     </DroppableContainer>

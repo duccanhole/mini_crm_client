@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Flex, Radio, Space, theme, Typography, DatePicker } from 'antd';
+import { Button, Flex, Radio, Space, theme, Typography, DatePicker, Select } from 'antd';
 import {
     AppstoreOutlined,
     BarsOutlined,
@@ -17,13 +17,17 @@ import { useGetLeads } from '@/hooks/api/useLead';
 import { SearchQueryParams } from '@/types/api';
 import { useRouter } from '@/i18n/routing';
 import { useUserInfo } from '@/hooks/useUserInfo';
+import { useGetUsers } from '@/hooks/api/useUser';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const { RangePicker } = DatePicker;
+const { Option } = Select;
 
 const DEFAULT_PAGE_SIZE = 12;
 
 export default function MyLeadsPage() {
     const tCommon = useTranslations('common');
+    const t = useTranslations('LeadsPage');
     const { token } = theme.useToken();
 
     const router = useRouter();
@@ -37,17 +41,27 @@ export default function MyLeadsPage() {
     const [leads, setLeads] = useState<Lead[]>([]);
 
     const user = useUserInfo();
+    const [assignedToId, setAssignedToId] = useState<string | number | undefined>(undefined);
+
     const queryParams: SearchQueryParams = {
         page: page,
         size: DEFAULT_PAGE_SIZE,
         createdFrom: dateRange?.[0]?.startOf('day').format('YYYY-MM-DDTHH:mm:ss'),
         createdTo: dateRange?.[1]?.endOf('day').format('YYYY-MM-DDTHH:mm:ss'),
-        assignedToId: user?.id || undefined,
+        assignedToId: assignedToId
     };
 
     const { data: leadsResponse, isLoading, isFetching, refetch } = useGetLeads(queryParams);
 
     const hasMore = leadsResponse?.data ? (leadsResponse.data.number + 1 < leadsResponse.data.totalPages) : false;
+
+    const [userSearch, setUserSearch] = useState('');
+    const debouncedUserSearch = useDebounce(userSearch, 500);
+    const { data: usersResponse, isLoading: isFetchingUsers } = useGetUsers({
+        size: 100,
+        search: debouncedUserSearch,
+        role: UserRole.SALE
+    });
 
     useEffect(() => {
         if (leadsResponse?.data.content) {
@@ -121,6 +135,27 @@ export default function MyLeadsPage() {
                     </Button>
                 </Space>
             </Flex>
+            <Space>
+                <Select
+                    showSearch
+                    filterOption={false}
+                    onSearch={setUserSearch}
+                    placeholder={t('assignedTo')}
+                    loading={isFetchingUsers}
+                    onChange={(value) => {
+                        setAssignedToId(value || undefined);
+                        setPage(0);
+                    }}
+                    style={{ width: 200 }}
+                >
+                    {usersResponse?.data?.content?.map((user: any) => (
+                        <Option key={user.id} value={user.id}>
+                            {user.name} ({user.email})
+                        </Option>
+                    ))}
+                    <Option value={null}>{tCommon('all')}</Option>
+                </Select>
+            </Space>
 
             {/* Content Area */}
             {viewMode === 'card' ? (
@@ -129,7 +164,7 @@ export default function MyLeadsPage() {
                     leads={leads}
                     hasMore={hasMore}
                     loadingMore={isFetching && page > 0}
-                    role={UserRole.SALE}
+                    role={UserRole.MANAGER}
                     onLoadMore={handleLoadMore}
                 />
             ) : (
@@ -139,7 +174,7 @@ export default function MyLeadsPage() {
                     hasMore={hasMore}
                     loadingMore={isFetching && page > 0}
                     onLoadMore={handleLoadMore}
-                    role={UserRole.SALE}
+                    role={UserRole.MANAGER}
                 />
             )}
         </Flex>
