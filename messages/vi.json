@@ -35,6 +35,15 @@
     "haveAccount": "Bạn đã có tài khoản?",
     "signIn": "Đăng nhập ngay"
   },
+  "OverviewPage": {
+    "title": "Tổng quan",
+    "customers": "Khách hàng",
+    "totalCustomers": "Tổng số khách hàng",
+    "totalWonValue": "Tổng giá trị Win",
+    "conversionRate": "Tỉ lệ Win",
+    "leads": "Khách hàng tiềm năng",
+    "statusDistribution": "Phân bổ trạng thái"
+  },
   "UsersPage": {
     "name": "Tên",
     "email": "Email",
@@ -79,7 +88,14 @@
     "reject": "Đánh dấu thất bại",
     "phone": "Số điện thoại",
     "email": "Email",
-    "by": "bởi"
+    "by": "bởi",
+    "myLeads": "Lead của tôi",
+    "leadsDashboard": "Bảng điều khiển Lead",
+    "totalCustomers": "Tổng số khách hàng",
+    "totalWonValue": "Tổng giá trị Win",
+    "conversionRate": "Tỉ lệ chuyển đổi",
+    "leadsTrend": "Xu hướng Lead",
+    "statusDistribution": "Phân bổ trạng thái"
   },
   "ActivitiesPage": {
     "type": "Loại",
@@ -108,7 +124,7 @@
     "newPasswordRequired": "Vui lòng nhập mật khẩu mới!"
   },
   "navigation": {
-    "dashboard": "Tổng quan",
+    "overview": "Tổng quan",
     "users": "Người dùng",
     "leads": "Tiềm năng",
     "customers": "Khách hàng",
@@ -156,6 +172,9 @@
     "newActivity": "Hoạt động mới",
     "currencySuffix": "₫",
     "noData": "Không có dữ liệu",
-    "all": "Tất cả"
+    "all": "Tất cả",
+    "viewDetail": "Xem chi tiết",
+    "view": "Xem",
+    "fromLastMonth": "so với tháng trước"
   }
 }

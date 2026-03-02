@@ -11,6 +11,7 @@ import { useRouter } from '@/i18n/routing';
 import dayjs from '@/lib/dayjs';
 import { useUserInfo } from '@/hooks/useUserInfo';
 import { hasPermission } from '@/lib/rbac';
+import { title } from 'process';
 
 interface LeadListViewProps {
     leads?: Lead[];
@@ -43,11 +44,18 @@ const LeadListView = ({
 
     const columns: any[] = [
         {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+            fixed: 'left',
+            width: 75,
+            render: (text: string, record: Lead) => <a onClick={() => router.push(`/${role}/leads/view?id=${record.id}`)}>{text}</a>,
+        },
+        {
             title: tLeadsPage('customer'),
             dataIndex: ['customer', 'name'],
-            fixed: 'left',
             key: 'customer',
-            render: (text: string, record: Lead) => <a onClick={() => router.push(`/${role}/leads/${record.id}`)}>{text || record.customer?.name || '-'}</a>,
+            render: (text: string, record: Lead) => <a onClick={() => router.push(`/${role}/customers/${record.customer?.id}`)}>{text || record.customer?.name || '-'}</a>,
             width: 200,
         },
         {
@@ -129,6 +137,7 @@ const LeadListView = ({
             width: 150,
             render: (_: any, record: Lead) => (
                 <Space size="middle">
+                    <a onClick={() => router.push(`/${role}/leads/view?id=${record.id}`)}>{tCommon('view')}</a>
                     {hasPermission(user?.role, 'leads', 'edit') && (
                         <a onClick={() => router.push(`/${role}/leads/${record.id}`)}>{tCommon('edit')}</a>
                     )}

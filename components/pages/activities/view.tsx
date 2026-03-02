@@ -7,10 +7,11 @@ import { Activity } from '@/types/model';
 import { SearchQueryParams } from '@/types/api';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRouter } from '@/i18n/routing';
+import { useRouter, usePathname } from '@/i18n/routing';
 import dayjs from '@/lib/dayjs';
 import { useUserInfo } from '@/hooks/useUserInfo';
 import { hasPermission } from '@/lib/rbac';
+import { useSearchParams } from 'next/navigation';
 
 interface ActivitiesViewPageProps {
     query?: SearchQueryParams;
@@ -23,17 +24,41 @@ const defaultQuery: SearchQueryParams = {
 }
 
 const ActivitiesViewPage = ({ query, role }: ActivitiesViewPageProps) => {
-    const [pagination, setPagination] = useState<SearchQueryParams>({ ...defaultQuery, ...query });
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    // Get initial values from URL or props
+    const urlPage = parseInt(searchParams.get('page') || '1') - 1;
+    const urlSize = parseInt(searchParams.get('size') || '10');
+
+    const [pagination, setPagination] = useState<SearchQueryParams>({
+        ...defaultQuery,
+        page: urlPage >= 0 ? urlPage : 0,
+        size: urlSize > 0 ? urlSize : 10,
+        ...query
+    });
 
     useEffect(() => {
         setPagination((prev) => ({ ...prev, ...query }));
     }, [JSON.stringify(query)]);
 
+    // Update URL when pagination changes
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('page', (pagination.page! + 1).toString());
+        params.set('size', pagination.size!.toString());
+
+        const newQuery = params.toString();
+        if (newQuery !== searchParams.toString()) {
+            router.replace(`${pathname}?${newQuery}`, { scroll: false });
+        }
+    }, [pagination.page, pagination.size, pathname, router, searchParams]);
+
     const tActivitiesPage = useTranslations('ActivitiesPage');
     const tCommon = useTranslations('common');
 
     const queryClient = useQueryClient();
-    const router = useRouter();
     const user = useUserInfo();
     const { data: activitiesData, isLoading } = useGetActivities(pagination);
     const deleteActivityMutation = useDeleteActivity();

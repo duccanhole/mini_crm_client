@@ -156,6 +156,7 @@ const CustomerEditPage = () => {
                             showSearch={{ filterOption: false, onSearch: onSearchSale }}
                             placeholder={t('saleId')}
                             loading={isFetchingUsers}
+                            disabled={user?.role === UserRole.SALE}
                         >
                             {usersResponse?.data?.content?.map((user: any) => (
                                 <Option key={user.id} value={user.id}>

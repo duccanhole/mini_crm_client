@@ -12,6 +12,8 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { LeadDTO } from '@/types/api';
 import dayjs from '@/lib/dayjs';
+import { useUserInfo } from '@/hooks/useUserInfo';
+import { UserRole } from '@/types/model';
 
 const { Option } = Select;
 
@@ -22,6 +24,7 @@ const LeadEditPage = () => {
     const t = useTranslations('LeadsPage');
     const tCommon = useTranslations('common');
     const [form] = Form.useForm();
+    const user = useUserInfo();
 
     const { data: leadResponse, isLoading: isFetching } = useGetLead(id);
 
@@ -156,6 +159,7 @@ const LeadEditPage = () => {
                             onSearch={setUserSearch}
                             placeholder={t('assignedTo')}
                             loading={isFetchingUsers}
+                            disabled={user?.role === UserRole.SALE}
                         >
                             {usersResponse?.data?.content?.map((user: any) => (
                                 <Option key={user.id} value={user.id}>

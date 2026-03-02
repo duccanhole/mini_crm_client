@@ -52,16 +52,24 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
     const menuItems: Record<'admin' | 'manager' | 'sale', MenuProps['items']> = {
         admin: [
             {
+                key: 'overview',
+                label: t('overview'),
+                icon: <DashboardOutlined />,
+            },
+            {
                 key: 'user',
                 label: t('users'),
+                icon: <TeamOutlined />,
             },
             {
                 key: 'customer',
                 label: t('customers'),
+                icon: <UserOutlined />,
             },
             {
                 key: 'lead',
                 label: t('leads'),
+                icon: <SolutionOutlined />,
             },
             {
                 key: 'activity',
@@ -70,8 +78,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
         ],
         manager: [
             {
-                key: 'dashboard',
-                label: t('dashboard'),
+                key: 'overview',
+                label: t('overview'),
             },
             {
                 key: 'customer',
@@ -87,6 +95,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
             },
         ],
         sale: [
+            {
+                key: 'overview',
+                label: t('overview'),
+                icon: <DashboardOutlined />,
+            },
             {
                 key: 'my-leads',
                 label: t('my-leads'),
@@ -156,8 +169,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
             case 'my-activities':
                 router.push('/sale/activities');
                 break;
-            case 'dashboard':
-                router.push('/manager/dashboard');
+            case 'overview':
+                if (userRole === 'admin') {
+                    router.push('/admin');
+                } else {
+                    router.push(`/${userRole}/overview`);
+                }
                 break;
             case 'logout':
                 modal.confirm({

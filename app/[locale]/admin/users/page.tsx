@@ -7,15 +7,38 @@ import { User } from '@/types/model';
 import { SearchQueryParams } from '@/types/api';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRouter } from '@/i18n/routing';
+import { useRouter, usePathname } from '@/i18n/routing';
+import dayjs from '@/lib/dayjs';
 import { useUserInfo } from '@/hooks/useUserInfo';
 import { hasPermission } from '@/lib/rbac';
+import { UserRole } from '@/types/model';
+import { useSearchParams } from 'next/navigation';
 
 const UsersPage = () => {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    // Get initial values from URL
+    const urlPage = parseInt(searchParams.get('page') || '1') - 1;
+    const urlSize = parseInt(searchParams.get('size') || '10');
+
     const [pagination, setPagination] = useState<SearchQueryParams>({
-        page: 0,
-        size: 10,
+        page: urlPage >= 0 ? urlPage : 0,
+        size: urlSize > 0 ? urlSize : 10,
     });
+
+    // Update URL when pagination changes
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('page', (pagination.page! + 1).toString());
+        params.set('size', pagination.size!.toString());
+
+        const newQuery = params.toString();
+        if (newQuery !== searchParams.toString()) {
+            router.replace(`${pathname}?${newQuery}`, { scroll: false });
+        }
+    }, [pagination.page, pagination.size, pathname, router, searchParams]);
 
     const [userEmail, setUserEmail] = useState('')
 
@@ -23,7 +46,6 @@ const UsersPage = () => {
     const tCommon = useTranslations('common');
 
     const queryClient = useQueryClient();
-    const router = useRouter();
     const user = useUserInfo();
     const role = user?.role;
 

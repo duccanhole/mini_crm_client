@@ -35,6 +35,15 @@
     "haveAccount": "Already have an account?",
     "signIn": "Login now"
   },
+  "OverviewPage": {
+    "title": "Overview",
+    "customers": "Customers",
+    "totalCustomers": "Total Customers",
+    "totalWonValue": "Total Won Value",
+    "conversionRate": "Win Rate",
+    "leads": "Leads",
+    "statusDistribution": "Status Distribution"
+  },
   "UsersPage": {
     "name": "Name",
     "email": "Email",
@@ -79,7 +88,14 @@
     "reject": "Mark as Lost",
     "phone": "Phone",
     "email": "Email",
-    "by": "by"
+    "by": "by",
+    "myLeads": "My Leads",
+    "leadsDashboard": "Leads Dashboard",
+    "totalCustomers": "Total Customers",
+    "totalWonValue": "Total Won Value",
+    "conversionRate": "Conversion Rate",
+    "leadsTrend": "Leads Trend",
+    "statusDistribution": "Status Distribution"
   },
   "ActivitiesPage": {
     "type": "Type",
@@ -109,7 +125,7 @@
     "newPasswordRequired": "Please enter your new password!"
   },
   "navigation": {
-    "dashboard": "Dashboard",
+    "overview": "Overview",
     "users": "Users",
     "leads": "Leads",
     "customers": "Customers",
@@ -153,6 +169,9 @@
     "end date": "End date",
     "loadMore": "Load more",
     "noData": "No data",
-    "all": "All"
+    "all": "All",
+    "viewDetail": "View Detail",
+    "view": "View",
+    "fromLastMonth": "from last month"
   }
 }

@@ -7,10 +7,11 @@ import { Customer, User, UserRole } from '@/types/model';
 import { SearchQueryParams } from '@/types/api';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRouter } from '@/i18n/routing';
+import { useRouter, usePathname } from '@/i18n/routing';
 import { useUserInfo } from '@/hooks/useUserInfo';
 import { hasPermission } from '@/lib/rbac';
-import { title } from 'process';
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 interface CustomersViewPageProps {
     role?: string,
@@ -24,25 +25,41 @@ const defaultQuery: SearchQueryParams = {
 
 const CustomersViewPage = (props: CustomersViewPageProps) => {
     const { role, query } = props;
-    const [pagination, setPagination] = useState<SearchQueryParams>({ ...defaultQuery, ...query });
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    // Get initial values from URL or props
+    const urlPage = parseInt(searchParams.get('page') || '1') - 1;
+    const urlSize = parseInt(searchParams.get('size') || '10');
+
+    const [pagination, setPagination] = useState<SearchQueryParams>({
+        ...defaultQuery,
+        page: urlPage >= 0 ? urlPage : 0,
+        size: urlSize > 0 ? urlSize : 10,
+        ...query
+    });
+
+    // Update URL when pagination changes
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('page', (pagination.page! + 1).toString());
+        params.set('size', pagination.size!.toString());
+
+        const newQuery = params.toString();
+        if (newQuery !== searchParams.toString()) {
+            router.replace(`${pathname}?${newQuery}`, { scroll: false });
+        }
+    }, [pagination.page, pagination.size, pathname, router, searchParams]);
 
     const tCustomersPage = useTranslations('CustomersPage');
     const tCommon = useTranslations('common');
 
     const queryClient = useQueryClient();
-    const router = useRouter();
     const { data: customersData, isLoading } = useGetCustomers(pagination);
     const deleteCustomerMutation = useDeleteCustomer();
 
     const user = useUserInfo();
-
-    const onViewCustomer = (id: string) => {
-        let query = '';
-        if (user?.role === UserRole.SALE) {
-            query = `?saleId=${user.id}`;
-        }
-        router.push(`/${role}/customers/${id}${query}`);
-    }
 
     const columns: any[] = [
         {
@@ -50,7 +67,7 @@ const CustomersViewPage = (props: CustomersViewPageProps) => {
             dataIndex: 'name',
             fixed: 'left',
             key: 'name',
-            render: (text: string, record: Customer) => <a onClick={() => onViewCustomer(record.id as string)}>{text}</a>,
+            render: (text: string, record: Customer) => <a onClick={() => router.push(`/${role}/customers/${record.id}`)}>{text}</a>,
             width: 200,
         },
         {
