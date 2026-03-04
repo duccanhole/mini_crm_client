@@ -21,6 +21,7 @@ import {
 } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
 import AuthService from '@/services/auth.service';
+import NotificationDropdown from '@/components/shared/NotificationDropdown';
 
 const { Header, Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -254,7 +255,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
                         icon={mode === 'dark' ? <SunOutlined /> : <MoonOutlined />}
                         onClick={toggleTheme}
                     />
-                    {screens.md && <Button type="text" icon={<BellOutlined />} />}
+                    {screens.md && <NotificationDropdown role={userRole} />}
                     <Dropdown menu={{ items: userMenuItems, onClick: (e) => handleMenuClick(e) }} placement="bottomRight">
                         <Space style={{ cursor: 'pointer' }}>
                             <Avatar size="small" icon={<UserOutlined />} />

@@ -124,6 +124,21 @@
     "oldPasswordRequired": "Please enter your old password!",
     "newPasswordRequired": "Please enter your new password!"
   },
+  "NotificationsPage": {
+    "title": "All Notifications",
+    "filterAll": "All",
+    "filterUnread": "Unread",
+    "markAllRead": "Mark all as read",
+    "emptyMessage": "No notifications found."
+  },
+  "NotificationPanel": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "markAllReadTooltip": "Mark all as read",
+    "empty": "No notifications",
+    "viewAll": "View all notifications",
+    "new": "new"
+  },
   "navigation": {
     "overview": "Overview",
     "users": "Users",

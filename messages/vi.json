@@ -123,6 +123,21 @@
     "oldPasswordRequired": "Vui lòng nhập mật khẩu cũ!",
     "newPasswordRequired": "Vui lòng nhập mật khẩu mới!"
   },
+  "NotificationsPage": {
+    "title": "Tất cả thông báo",
+    "filterAll": "Tất cả",
+    "filterUnread": "Chưa đọc",
+    "markAllRead": "Đánh dấu tất cả đã đọc",
+    "emptyMessage": "Không tìm thấy thông báo nào."
+  },
+  "NotificationPanel": {
+    "title": "Thông báo",
+    "markAllRead": "Đọc tất cả",
+    "markAllReadTooltip": "Đánh dấu tất cả đã đọc",
+    "empty": "Không có thông báo nào",
+    "viewAll": "Xem tất cả thông báo",
+    "new": "mới"
+  },
   "navigation": {
     "overview": "Tổng quan",
     "users": "Người dùng",

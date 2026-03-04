@@ -17,17 +17,6 @@ export interface Customer {
     sale?: User;
 }
 
-export interface Notification {
-    id: string | number;
-    user: User;
-    type: string;
-    title: string;
-    message: string;
-    isRead: boolean;
-    metaData: string;
-    createdAt: string;
-}
-
 export interface Lead {
     id: string | number;
     customer: Customer;
@@ -51,7 +40,7 @@ export interface Activity {
 export interface Notification {
     id: string | number;
     user: User;
-    type: string;
+    type: NotificationType | string;
     title: string;
     message: string;
     isRead: boolean;
@@ -71,6 +60,13 @@ export enum LeadStatus {
     QUALIFIED = 'QUALIFIED',
     WON = 'WON',
     LOST = 'LOST',
+}
+
+export enum NotificationType {
+    LEAD_CREATED = 'LEAD_CREATED',
+    LEAD_UPDATED = 'LEAD_UPDATED',
+    CUSTOMER_ASSIGNED = 'CUSTOMER_ASSIGNED',
+    ACTIVITY_CREATED = 'ACTIVITY_CREATED',
 }
 
 /**
