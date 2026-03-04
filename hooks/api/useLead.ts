@@ -11,6 +11,8 @@ export const leadKeys = {
     list: (params: SearchQueryParams) => ['leads', 'list', params] as const,
     details: () => ['leads', 'detail'] as const,
     detail: (id: string | number) => ['leads', 'detail', id] as const,
+    count: (params: SearchQueryParams) => ['leads', 'count', params] as const,
+    value: (params: SearchQueryParams) => ['leads', 'value', params] as const,
 };
 
 // Hook to get all leads (paginated/searched)
@@ -80,5 +82,20 @@ export const useDeleteLead = () => {
         onError: (error: any) => {
             message.error(error.message || t('failed'));
         },
+    });
+};
+
+
+export const useCountLeads = (params?: SearchQueryParams) => {
+    return useQuery({
+        queryKey: leadKeys.count(params || {}),
+        queryFn: () => LeadsService.count(params),
+    });
+};
+
+export const useValueLeads = (params?: SearchQueryParams) => {
+    return useQuery({
+        queryKey: leadKeys.value(params || {}),
+        queryFn: () => LeadsService.value(params)
     });
 };

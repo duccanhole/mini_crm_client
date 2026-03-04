@@ -26,6 +26,16 @@ const LeadsService = {
   delete: async (id: string | number): Promise<ApiResponse<null>> => {
     const response = await apiClient.delete(`/leads/${id}`);
     return response.data;
+  },
+
+  count: async (params?: SearchQueryParams): Promise<ApiResponse<number>> => {
+    const response = await apiClient.get('/leads/count', { params });
+    return response.data;
+  },
+
+  value: async (params?: SearchQueryParams): Promise<ApiResponse<number>> => {
+    const response = await apiClient.get('/leads/value', { params });
+    return response.data;
   }
 };
 

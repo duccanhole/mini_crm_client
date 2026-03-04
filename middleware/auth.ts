@@ -31,7 +31,7 @@ export function authMiddleware(req: NextRequest) {
     if (!token) {
       return NextResponse.redirect(new URL(`/${locale}/auth/login`, req.url));
     } else {
-      const dashboardPath = role === 'admin' ? '/admin/users' : role === 'sale' ? '/sale/customers' : role === 'manager' ? '/manager/dashboard' : '/error?code=404';
+      const dashboardPath = role === 'admin' ? '/admin/users' : role === 'sale' ? '/sale/customers' : role === 'manager' ? '/manager/overview' : '/error?code=404';
       return NextResponse.redirect(new URL(`/${locale}${dashboardPath}`, req.url));
     }
   }
@@ -76,7 +76,7 @@ export function authMiddleware(req: NextRequest) {
 
   // 6. Redirect auth pages to dashboard if already logged in
   if (token && isPublicPage && !pathWithoutLocale.startsWith('/error')) {
-    const dashboardPath = role === 'admin' ? '/admin/users' : role === 'sale' ? '/sale/customers' : role === 'manager' ? '/manager/dashboard' : '/';
+    const dashboardPath = role === 'admin' ? '/admin/users' : role === 'sale' ? '/sale/customers' : role === 'manager' ? '/manager/overview' : '/';
     const dashboardUrl = new URL(`/${locale}${dashboardPath}`, req.url);
     return NextResponse.redirect(dashboardUrl);
   }

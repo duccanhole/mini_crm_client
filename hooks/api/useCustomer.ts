@@ -11,6 +11,7 @@ export const customerKeys = {
     list: (params: SearchQueryParams) => ['customers', 'list', params] as const,
     details: () => ['customers', 'detail'] as const,
     detail: (id: string | number) => ['customers', 'detail', id] as const,
+    count: (params: SearchQueryParams) => ['customers', 'count', params] as const,
 };
 
 // Hook to get all customers (paginated/searched)
@@ -80,5 +81,13 @@ export const useDeleteCustomer = () => {
         onError: (error: any) => {
             message.error(error.message || t('failed'));
         },
+    });
+};
+
+
+export const useCountCustomers = (params?: SearchQueryParams) => {
+    return useQuery({
+        queryKey: customerKeys.count(params || {}),
+        queryFn: () => CustomersService.count(params),
     });
 };

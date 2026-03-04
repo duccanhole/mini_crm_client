@@ -26,6 +26,11 @@ const CustomersService = {
   delete: async (id: string | number): Promise<ApiResponse<null>> => {
     const response = await apiClient.delete(`/customers/${id}`);
     return response.data;
+  },
+
+  count: async (params?: SearchQueryParams): Promise<ApiResponse<number>> => {
+    const response = await apiClient.get('/customers/count', { params });
+    return response.data;
   }
 };
 

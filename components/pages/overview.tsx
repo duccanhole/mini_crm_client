@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Col, DatePicker, Flex, Progress, Row, Space, Statistic, theme, Typography, Button } from 'antd';
 import {
     CreditCardOutlined,
@@ -29,19 +29,52 @@ import {
 import { useTranslations } from 'next-intl';
 import dayjs from '@/lib/dayjs';
 import { Dayjs } from 'dayjs';
+import { useCountCustomers } from '@/hooks/api/useCustomer';
+import { useCountLeads, useValueLeads } from '@/hooks/api/useLead';
+import { usePathname, useRouter } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
+import { LeadStatus } from '@/types/model';
+import useChartData from '@/hooks/chart/useChartData';
 
 const { RangePicker } = DatePicker;
 
 export default function OverviewPage() {
     const tCommon = useTranslations('common');
     const tOverview = useTranslations('OverviewPage');
-    const tLeads = useTranslations('LeadsPage');
     const { token } = theme.useToken();
 
-    const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>([
-        dayjs().startOf('month'),
-        dayjs().endOf('month')
-    ]);
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    // Get initial values from URL
+    const urlFrom = searchParams.get('from');
+    const urlTo = searchParams.get('to');
+
+
+    const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(() => {
+        if (urlFrom && urlTo) {
+            const from = dayjs(urlFrom);
+            const to = dayjs(urlTo);
+            if (from.isValid() && to.isValid()) {
+                return [from, to];
+            }
+        }
+        return [
+            dayjs().startOf('week').startOf('day'),
+            dayjs().endOf('week').endOf('day')
+        ];
+    });
+
+    const queryForStatstics = {
+        createdFrom: dateRange?.[0]?.toISOString(),
+        createdTo: dateRange?.[1]?.toISOString()
+    };
+
+    const { data: countCustomers, refetch: refetchCountCustomers } = useCountCustomers(queryForStatstics);
+    const { data: countLeadsTotal, refetch: refetchCountLeadsNew } = useCountLeads({ ...queryForStatstics });
+    const { data: countLeadsWin, refetch: refetchCountLeadsWin } = useCountLeads({ ...queryForStatstics, status: LeadStatus.WON });
+    const { data: valueLeads, refetch: refetchValueLeads } = useValueLeads({ ...queryForStatstics, status: LeadStatus.WON });
 
     const cardStyle: React.CSSProperties = {
         borderRadius: token.borderRadiusLG,
@@ -49,6 +82,68 @@ export default function OverviewPage() {
         border: `1px solid ${token.colorBorderSecondary}`,
         background: `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${token.colorFillAlter} 100%)`,
     };
+
+    const conversionRate = (countLeadsWin?.data ?? 0) / (countLeadsTotal?.data ?? 1) * 100;
+
+    const { data, refresh } = useChartData();
+
+    const lineChart = [
+        {
+            date: dayjs().subtract(2, 'month').startOf('month').format('MM/YYYY'),
+            value: data?.customers.last2Month
+        },
+        {
+            date: dayjs().subtract(1, 'month').startOf('month').format('MM/YYYY'),
+            value: data?.customers.lastMonth,
+        },
+        {
+            date: dayjs().startOf('month').format('MM/YYYY'),
+            value: data?.customers.thisMonth,
+        }
+    ]
+
+    const barChart = [
+        {
+            date: dayjs().subtract(2, 'month').startOf('month').format('MM/YYYY'),
+            total: data?.leads.total.last2Month,
+            won: data?.leads.won.last2Month,
+            lost: data?.leads.lost.last2Month
+        },
+        {
+            date: dayjs().subtract(1, 'month').startOf('month').format('MM/YYYY'),
+            total: data?.leads.total.lastMonth,
+            won: data?.leads.won.lastMonth,
+            lost: data?.leads.lost.lastMonth
+        },
+        {
+            date: dayjs().startOf('month').format('MM/YYYY'),
+            total: data?.leads.total.thisMonth,
+            won: data?.leads.won.thisMonth,
+            lost: data?.leads.lost.thisMonth
+        }
+    ]
+
+    const handleRefresh = () => {
+        refetchCountCustomers();
+        refetchValueLeads();
+        refresh();
+    };
+
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (dateRange?.[0] && dateRange?.[1]) {
+            params.set('from', dateRange[0].toISOString());
+            params.set('to', dateRange[1].toISOString());
+        } else {
+            params.delete('from');
+            params.delete('to');
+        }
+
+        const newQuery = params.toString();
+        if (newQuery !== searchParams.toString()) {
+            router.replace(`${pathname}?${newQuery}`, { scroll: false });
+        }
+    }, [dateRange, pathname, router, searchParams]);
 
     return (
         <Flex vertical gap={token.marginLG}>
@@ -67,7 +162,7 @@ export default function OverviewPage() {
                     />
                     <Button
                         icon={<ReloadOutlined />}
-                        onClick={() => { }}
+                        onClick={handleRefresh}
                     />
                 </Flex>
             </Flex>
@@ -78,7 +173,7 @@ export default function OverviewPage() {
                     <Card style={cardStyle} hoverable>
                         <Statistic
                             title={<Typography.Text type="secondary">{tOverview('totalCustomers')}</Typography.Text>}
-                            value={128}
+                            value={countCustomers?.data}
                             prefix={<UserOutlined style={{ color: token.colorPrimary }} />}
                             valueStyle={{ color: token.colorPrimary, fontWeight: 700 }}
                         />
@@ -88,7 +183,7 @@ export default function OverviewPage() {
                     <Card style={cardStyle} hoverable>
                         <Statistic
                             title={<Typography.Text type="secondary">{tOverview('totalWonValue')}</Typography.Text>}
-                            value={1250000000}
+                            value={valueLeads?.data}
                             suffix={tCommon('currencySuffix')}
                             valueStyle={{ color: token.colorSuccess, fontWeight: 700 }}
                         />
@@ -98,7 +193,7 @@ export default function OverviewPage() {
                     <Card style={cardStyle} hoverable>
                         <Statistic
                             title={<Typography.Text type="secondary">{tOverview('conversionRate')}</Typography.Text>}
-                            value={24.5}
+                            value={conversionRate}
                             precision={1}
                             prefix={<RiseOutlined style={{ color: token.colorWarning }} />}
                             suffix="%"
@@ -108,6 +203,7 @@ export default function OverviewPage() {
                 </Col>
             </Row>
 
+
             {/* Charts Section */}
             <Row gutter={[token.marginMD, token.marginMD]}>
                 <Col xs={24} lg={16}>
@@ -116,11 +212,7 @@ export default function OverviewPage() {
                         style={{ ...cardStyle, background: token.colorBgContainer, height: 400 }}
                     >
                         <ResponsiveContainer width="100%" height={300}>
-                            <LineChart data={[
-                                { date: '2024-01-01', value: 120 },
-                                { date: '2024-02-01', value: 50 },
-                                { date: '2024-03-01', value: 150 }
-                            ]}>
+                            <LineChart data={lineChart}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="date" />
                                 <YAxis />
@@ -136,19 +228,15 @@ export default function OverviewPage() {
                         style={{ ...cardStyle, background: token.colorBgContainer, height: 400 }}
                     >
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={[
-                                { type: 'Q1', total: 40, win: 5, lose: 10 },
-                                { type: 'Q2', total: 30, win: 10, lose: 5 },
-                                { type: 'Q3', total: 20, win: 15, lose: 2 },
-                            ]}>
+                            <BarChart data={barChart}>
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="type" />
+                                <XAxis dataKey="date" />
                                 <YAxis />
                                 <ReTooltip />
                                 <Legend />
                                 <Bar dataKey="total" fill={token.colorPrimary} />
-                                <Bar dataKey="win" fill={token.colorSuccess} />
-                                <Bar dataKey="lose" fill={token.colorError} />
+                                <Bar dataKey="won" fill={token.colorSuccess} />
+                                <Bar dataKey="lost" fill={token.colorError} />
                             </BarChart>
                         </ResponsiveContainer>
                     </Card>

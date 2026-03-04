@@ -123,8 +123,6 @@ const LeadCreatePage = () => {
                             <Option value="NEW">NEW</Option>
                             <Option value="CONTACTED">CONTACTED</Option>
                             <Option value="QUALIFIED">QUALIFIED</Option>
-                            <Option value="PROPOSAL">PROPOSAL</Option>
-                            <Option value="NEGOTIATION">NEGOTIATION</Option>
                             <Option value="WON">WON</Option>
                             <Option value="LOST">LOST</Option>
                         </Select>
