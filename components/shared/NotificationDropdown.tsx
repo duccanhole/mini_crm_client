@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Avatar,
     Badge,
@@ -13,6 +13,8 @@ import {
     Tag,
     Tooltip,
     Typography,
+    message,
+    notification,
     theme,
 } from 'antd';
 import {
@@ -26,70 +28,73 @@ import {
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import dayjs from '@/lib/dayjs';
-import { Notification } from '@/types/model';
+import { Notification, NotificationType } from '@/types/model';
+import { useUserInfo } from '@/hooks/useUserInfo';
+import { useGetNotifications, useGetUnreadCount, useMarkAllAsRead, useMarkAsRead } from '@/hooks/api/useNotification';
+import { useQueryClient } from '@tanstack/react-query';
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
-const MOCK_USER = {
-    id: 1,
-    name: 'Admin',
-    email: 'admin@minicrm.com',
-    phone: '',
-    role: 'admin',
-    status: 'active',
-};
+// const MOCK_USER = {
+//     id: 1,
+//     name: 'Admin',
+//     email: 'admin@minicrm.com',
+//     phone: '',
+//     role: 'admin',
+//     status: 'active',
+// };
 
-const MOCK_NOTIFICATIONS: Notification[] = [
-    {
-        id: 1,
-        user: MOCK_USER,
-        type: 'LEAD_CREATED',
-        title: 'Lead mới được tạo',
-        message: 'Sale Tran Thi B vừa tạo một lead mới cho khách hàng Công ty ABC với giá trị 80,000,000 VND.',
-        isRead: false,
-        metaData: '{"leadId": 13}',
-        createdAt: dayjs().subtract(5, 'minute').toISOString(),
-    },
-    {
-        id: 2,
-        user: MOCK_USER,
-        type: 'CUSTOMER_ASSIGNED',
-        title: 'Khách hàng được phân công',
-        message: 'Khách hàng Nguyen Van A đã được phân công cho bạn bởi Manager.',
-        isRead: false,
-        metaData: '{"customerId": 8}',
-        createdAt: dayjs().subtract(30, 'minute').toISOString(),
-    },
-    {
-        id: 3,
-        user: MOCK_USER,
-        type: 'ACTIVITY_CREATED',
-        title: 'Hoạt động mới',
-        message: 'Sale Le Van C đã tạo một cuộc gọi mới với khách hàng Pham Thi D vào lúc 14:00 hôm nay.',
-        isRead: false,
-        metaData: '{"activityId": 5}',
-        createdAt: dayjs().subtract(2, 'hour').toISOString(),
-    },
-    {
-        id: 4,
-        user: MOCK_USER,
-        type: 'LEAD_UPDATED',
-        title: 'Lead được cập nhật',
-        message: 'Lead của khách hàng Hoang Van E đã được cập nhật trạng thái sang QUALIFIED.',
-        isRead: true,
-        metaData: '{"leadId": 9}',
-        createdAt: dayjs().subtract(1, 'day').toISOString(),
-    },
-    {
-        id: 5,
-        user: MOCK_USER,
-        type: 'LEAD_CREATED',
-        title: 'Lead mới được tạo',
-        message: 'Sale Nguyen Thi F vừa tạo lead mới cho khách hàng Cong ty XYZ.',
-        isRead: true,
-        metaData: '{"leadId": 20}',
-        createdAt: dayjs().subtract(2, 'day').toISOString(),
-    },
-];
+// const MOCK_NOTIFICATIONS: Notification[] = [
+//     {
+//         id: 1,
+//         user: MOCK_USER,
+//         type: 'LEAD_CREATED',
+//         title: 'Lead mới được tạo',
+//         message: 'Sale Tran Thi B vừa tạo một lead mới cho khách hàng Công ty ABC với giá trị 80,000,000 VND.',
+//         isRead: false,
+//         metaData: '{"leadId": 13}',
+//         createdAt: dayjs().subtract(5, 'minute').toISOString(),
+//     },
+//     {
+//         id: 2,
+//         user: MOCK_USER,
+//         type: 'CUSTOMER_ASSIGNED',
+//         title: 'Khách hàng được phân công',
+//         message: 'Khách hàng Nguyen Van A đã được phân công cho bạn bởi Manager.',
+//         isRead: false,
+//         metaData: '{"customerId": 8}',
+//         createdAt: dayjs().subtract(30, 'minute').toISOString(),
+//     },
+//     {
+//         id: 3,
+//         user: MOCK_USER,
+//         type: 'ACTIVITY_CREATED',
+//         title: 'Hoạt động mới',
+//         message: 'Sale Le Van C đã tạo một cuộc gọi mới với khách hàng Pham Thi D vào lúc 14:00 hôm nay.',
+//         isRead: false,
+//         metaData: '{"activityId": 5}',
+//         createdAt: dayjs().subtract(2, 'hour').toISOString(),
+//     },
+//     {
+//         id: 4,
+//         user: MOCK_USER,
+//         type: 'LEAD_UPDATED',
+//         title: 'Lead được cập nhật',
+//         message: 'Lead của khách hàng Hoang Van E đã được cập nhật trạng thái sang QUALIFIED.',
+//         isRead: true,
+//         metaData: '{"leadId": 9}',
+//         createdAt: dayjs().subtract(1, 'day').toISOString(),
+//     },
+//     {
+//         id: 5,
+//         user: MOCK_USER,
+//         type: 'LEAD_CREATED',
+//         title: 'Lead mới được tạo',
+//         message: 'Sale Nguyen Thi F vừa tạo lead mới cho khách hàng Cong ty XYZ.',
+//         isRead: true,
+//         metaData: '{"leadId": 20}',
+//         createdAt: dayjs().subtract(2, 'day').toISOString(),
+//     },
+// ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 // Dùng token design thay vì hardcode màu. Hàm này nhận token để đảm bảo
@@ -118,22 +123,118 @@ const getNotificationMeta = (
 export default function NotificationDropdown({ role }: { role: string }) {
     const { token } = theme.useToken();
     const t = useTranslations('NotificationPanel');
+    const tNotification = useTranslations('NotificationsPage');
     const router = useRouter();
+    const [api, contextHolder] = notification.useNotification()
+    const queryClient = useQueryClient()
 
-    const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
     const [open, setOpen] = useState(false);
 
-    const unreadCount = notifications.filter((n) => !n.isRead).length;
+    const userInfo = useUserInfo();
+    const { data: notificationsData } = useGetNotifications({
+        userId: userInfo?.id,
+    })
+
+    const { data: unreadCountData } = useGetUnreadCount(userInfo?.id as string)
+
+    const mutationMarkAllRead = useMarkAllAsRead()
+    const mutationMarkRead = useMarkAsRead()
+
+    const notifications = notificationsData?.data.content || [];
+
+    const unreadCount = unreadCountData?.data?.count || 0;
+
+
 
     const markAllRead = () => {
-        setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+        mutationMarkAllRead.mutateAsync(userInfo?.id as string)
     };
 
-    const markRead = (id: string | number) => {
-        setNotifications((prev) =>
-            prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-        );
+    const handleNotificationClick = async (item: Notification) => {
+        try {
+            await mutationMarkRead.mutateAsync(item.id as string)
+            const metaData = JSON.parse(item.metaData)
+            switch (item.type as NotificationType) {
+                case NotificationType.LEAD_CREATED:
+                    router.push(`/${role}/leads/view?id=${metaData?.id}`)
+                    break;
+                case NotificationType.LEAD_UPDATED:
+                    router.push(`/${role}/leads/view?id=${metaData?.id}`)
+                    break;
+                case NotificationType.CUSTOMER_ASSIGNED:
+                    router.push(`/${role}/customers/${metaData?.id}`)
+                    break;
+                case NotificationType.LEAD_UPDATED:
+                    router.push(`/${role}/leads/view?id=${metaData?.id}`)
+                    break;
+                case NotificationType.CUSTOMER_ASSIGNED:
+                    router.push(`/${role}/customers/${metaData?.id}`)
+                    break;
+                case NotificationType.ACTIVITY_CREATED:
+                    router.push(`/${role}/leads/view?id=${metaData?.lead?.id}`)
+                    break;
+                default:
+                    router.push(`/${role}/notifications`)
+            };
+        } catch (error: any) {
+            message.error(error.message || t('failed'))
+        }
     };
+
+    const getNotificationContent = (data: Notification) => {
+        const metaData = JSON.parse(data.metaData)
+        switch (data.type as NotificationType) {
+            case NotificationType.LEAD_CREATED:
+                return {
+                    title: tNotification('leadCreatedTitle'),
+                    message: tNotification('leadCreatedMsg', {
+                        id: metaData.id,
+                    }),
+                };
+            case NotificationType.LEAD_UPDATED:
+                return {
+                    title: tNotification('leadUpdatedTitle'),
+                    message: tNotification('leadUpdatedMsg', {
+                        id: metaData.id,
+                    }),
+                };
+            case NotificationType.CUSTOMER_ASSIGNED:
+                return {
+                    title: tNotification('customerAssignedTitle'),
+                    message: tNotification('customerAssignedMsg'),
+                };
+            case NotificationType.ACTIVITY_CREATED:
+                return {
+                    title: tNotification('activityCreatedTitle'),
+                    message: tNotification('activityCreatedMsg', {
+                        id: metaData.lead.id,
+                    }),
+                };
+            default:
+                return {
+                    title: data.title,
+                    message: data.message,
+                };
+        }
+    }
+
+    useEffect(() => {
+        const eventSource = new EventSource(`${process.env.NEXT_PUBLIC_API_URL}/sse/${userInfo?.id}/subscribe`);
+        eventSource.addEventListener('notification', (event) => {
+            const data = JSON.parse(event.data);
+            console.log('Notification received:', data);
+            queryClient.invalidateQueries({ queryKey: ['notifications'] })
+            queryClient.invalidateQueries({ queryKey: ['unread-count'] })
+            api.info({
+                title: tNotification('newNotification'),
+                description: tNotification('newNotificationMsg'),
+                placement: 'bottomRight'
+            })
+        });
+        return () => {
+            eventSource.close();
+        };
+    }, [userInfo?.id])
 
     const dropdownContent = (
         <div
@@ -170,6 +271,7 @@ export default function NotificationDropdown({ role }: { role: string }) {
                             icon={<CheckOutlined />}
                             onClick={markAllRead}
                             style={{ color: token.colorPrimary }}
+                            loading={mutationMarkAllRead.isPending}
                         >
                             {t('markAllRead')}
                         </Button>
@@ -187,19 +289,19 @@ export default function NotificationDropdown({ role }: { role: string }) {
                     />
                 ) : (
                     <List
-                        dataSource={notifications}
+                        dataSource={notificationsData?.data.content || []}
                         renderItem={(item) => {
                             const meta = getNotificationMeta(item.type, token);
                             return (
                                 <List.Item
                                     key={item.id}
-                                    onClick={() => markRead(item.id)}
+                                    onClick={() => handleNotificationClick(item)}
                                     // Dùng Tailwind cho hover effect (đúng quy tắc cursorrules)
                                     className="hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-colors duration-200"
                                     style={{
                                         padding: `${token.paddingMD}px ${token.paddingLG}px`,
-                                        cursor: 'pointer',
-                                        background: item.isRead
+                                        cursor: mutationMarkRead.isPending ? 'wait' : 'pointer',
+                                        background: item.read
                                             ? 'transparent'
                                             : token.colorPrimaryBg,
                                         borderBottom: `1px solid ${token.colorBorderSecondary}`,
@@ -224,17 +326,17 @@ export default function NotificationDropdown({ role }: { role: string }) {
                                         <Flex vertical gap={2} style={{ flex: 1, minWidth: 0 }}>
                                             <Flex justify="space-between" align="center">
                                                 <Typography.Text
-                                                    strong={!item.isRead}
+                                                    strong={!item.read}
                                                     style={{
                                                         fontSize: token.fontSizeSM,
-                                                        color: item.isRead
+                                                        color: item.read
                                                             ? token.colorTextSecondary
                                                             : token.colorText,
                                                     }}
                                                 >
-                                                    {item.title}
+                                                    {getNotificationContent(item).title}
                                                 </Typography.Text>
-                                                {!item.isRead && (
+                                                {!item.read && (
                                                     <Badge
                                                         color={token.colorPrimary}
                                                         style={{ flexShrink: 0, marginLeft: token.marginXS }}
@@ -252,7 +354,7 @@ export default function NotificationDropdown({ role }: { role: string }) {
                                                     overflow: 'hidden',
                                                 }}
                                             >
-                                                {item.message}
+                                                {getNotificationContent(item).message}
                                             </Typography.Text>
 
                                             <Typography.Text
@@ -272,40 +374,47 @@ export default function NotificationDropdown({ role }: { role: string }) {
 
             {/* Footer */}
             <Divider style={{ margin: 0 }} />
-            <Flex justify="center" style={{ padding: `${token.paddingSM}px 0` }}>
-                <Button
-                    type="link"
-                    size="small"
-                    onClick={() => {
-                        setOpen(false);
-                        router.push(`/${role}/notifications`);
-                    }}
-                >
-                    {t('viewAll')}
-                </Button>
-            </Flex>
+            {
+                Number.isInteger(notificationsData?.data?.totalPages) && notificationsData!.data!.totalPages > 1 && (
+                    <Flex justify="center" style={{ padding: `${token.paddingSM}px 0` }}>
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                setOpen(false);
+                                router.push(`/${role}/notifications`);
+                            }}
+                        >
+                            {t('viewAll')}
+                        </Button>
+                    </Flex>
+                )
+            }
         </div>
     );
 
     return (
-        <Dropdown
-            dropdownRender={() => dropdownContent}
-            trigger={['click']}
-            open={open}
-            onOpenChange={setOpen}
-            placement="bottomRight"
-        >
-            <Badge count={unreadCount} size="small">
-                <Button
-                    type="text"
-                    icon={<BellOutlined />}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                />
-            </Badge>
-        </Dropdown>
+        <>
+            {contextHolder}
+            <Dropdown
+                dropdownRender={() => dropdownContent}
+                trigger={['click']}
+                open={open}
+                onOpenChange={setOpen}
+                placement="bottomRight"
+            >
+                <Badge count={unreadCount} size="small" overflowCount={10}>
+                    <Button
+                        type="text"
+                        icon={<BellOutlined />}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    />
+                </Badge>
+            </Dropdown>
+        </>
     );
 }

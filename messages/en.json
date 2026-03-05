@@ -129,7 +129,17 @@
     "filterAll": "All",
     "filterUnread": "Unread",
     "markAllRead": "Mark all as read",
-    "emptyMessage": "No notifications found."
+    "emptyMessage": "No notifications found.",
+    "leadCreatedTitle": "New Lead Created",
+    "leadCreatedMsg": "A new lead has been created.",
+    "leadUpdatedTitle": "Lead Updated",
+    "leadUpdatedMsg": "Lead #{id} has been updated.",
+    "customerAssignedTitle": "New Customer",
+    "customerAssignedMsg": "A new customer has been assigned to you.",
+    "activityCreatedTitle": "Activity Created",
+    "activityCreatedMsg": "Lead #{id} has been updated activity.",
+    "newNotification": "New notification",
+    "newNotificationMsg": "You have received a new notification"
   },
   "NotificationPanel": {
     "title": "Notifications",
@@ -167,6 +177,7 @@
     "delete": "Delete",
     "confirm": "Confirm",
     "cancel": "Cancel",
+    "save": "Save",
     "refresh": "Refresh",
     "logoutConfirm": "Are you sure you want to logout?",
     "logoutTitle": "Logout",

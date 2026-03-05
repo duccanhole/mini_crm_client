@@ -3,7 +3,7 @@ import { UserRole } from "@/types/model";
 
 const Page = () => {
     return (
-        <NotificationsViewPage />
+        <NotificationsViewPage role={UserRole.ADMIN} />
     );
 };
 

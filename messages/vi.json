@@ -128,7 +128,17 @@
     "filterAll": "Tất cả",
     "filterUnread": "Chưa đọc",
     "markAllRead": "Đánh dấu tất cả đã đọc",
-    "emptyMessage": "Không tìm thấy thông báo nào."
+    "emptyMessage": "Không tìm thấy thông báo nào.",
+    "leadCreatedTitle": "Lead mới.",
+    "leadCreatedMsg": "Lead mới đã được tạo.",
+    "leadUpdatedTitle": "Lead cập nhật.",
+    "leadUpdatedMsg": "Lead #{id} đã được cập nhật.",
+    "customerAssignedTitle": "Khách hàng mới.",
+    "customerAssignedMsg": "Khách hàng mới đã được giao cho bạn phụ trách.",
+    "activityCreatedTitle": "Hoạt động mới.",
+    "activityCreatedMsg": "Lead #{id} đã được cập nhật hoạt động.",
+    "newNotification": "Thông báo mới",
+    "newNotificationMsg": "Bạn có thông báo mới"
   },
   "NotificationPanel": {
     "title": "Thông báo",

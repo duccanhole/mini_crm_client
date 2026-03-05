@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from '@/i18n/routing';
+import { useGetNotifications, useMarkAllAsRead, useMarkAsRead } from '@/hooks/api/useNotification';
+import { useUserInfo } from '@/hooks/useUserInfo';
 import {
     Avatar,
     Button,
@@ -11,7 +14,8 @@ import {
     Radio,
     Tag,
     Typography,
-    theme
+    theme,
+    message
 } from 'antd';
 import {
     CalendarOutlined,
@@ -23,32 +27,10 @@ import {
 } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
 import dayjs from '@/lib/dayjs';
-import { Notification } from '@/types/model';
+import { Notification, NotificationType } from '@/types/model';
 import type { RadioChangeEvent } from 'antd';
 
-// Mock data (trong thực tế sẽ fetch từ API thông qua hooks/api)
-const MOCK_USER = {
-    id: 1,
-    name: 'Admin',
-    email: 'admin@minicrm.com',
-    phone: '',
-    role: 'admin',
-    status: 'active',
-};
-
-const MOCK_NOTIFICATIONS: Notification[] = Array.from({ length: 20 }).map((_, i) => ({
-    id: i + 1,
-    user: MOCK_USER,
-    type: i % 4 === 0 ? 'LEAD_CREATED'
-        : i % 4 === 1 ? 'LEAD_UPDATED'
-            : i % 4 === 2 ? 'CUSTOMER_ASSIGNED'
-                : 'ACTIVITY_CREATED',
-    title: `Thông báo hệ thống ${i + 1}`,
-    message: `Nội dung chi tiết của thông báo số ${i + 1} được hiển thị ở đây để người dùng dễ dàng theo dõi và xử lý.`,
-    isRead: i > 3,
-    metaData: '{}',
-    createdAt: dayjs().subtract(i * 45, 'minute').toISOString(),
-}));
+// Mock data removed
 
 const getNotificationMeta = (
     type: string,
@@ -68,31 +50,98 @@ const getNotificationMeta = (
     }
 };
 
-export default function NotificationsViewPage() {
+export default function NotificationsViewPage({ role }: { role?: string }) {
     const { token } = theme.useToken();
     const t = useTranslations('NotificationsPage');
     const tCommon = useTranslations('common');
+    const router = useRouter();
+
+    const userInfo = useUserInfo();
 
     const [filter, setFilter] = useState<'ALL' | 'UNREAD'>('ALL');
-    const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
+    const [page, setPage] = useState(0);
+    const [size, setSize] = useState(10);
+
+    const { data: notificationsData, isLoading } = useGetNotifications({
+        userId: userInfo?.id,
+        isRead: filter === 'UNREAD' ? false : true, // Nếu backend hỗ trợ params này
+        page,
+        size
+    });
+
+    const mutationMarkAllRead = useMarkAllAsRead();
+    const mutationMarkRead = useMarkAsRead();
+
+    // Lọc data ở client nếu backend không nhận isRead (tùy thuộc API)
+    // Nếu API đã lọc thì chỉ hiển thị
+    const displayData = notificationsData?.data.content || [];
 
     const handleFilterChange = (e: RadioChangeEvent) => {
         setFilter(e.target.value);
+        setPage(0); // Reset page on filter change
     };
 
-    const handleMarkAllRead = () => {
-        setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    const handleMarkAllRead = async () => {
+        if (!userInfo?.id) return;
+        await mutationMarkAllRead.mutateAsync(userInfo.id as string);
     };
 
-    const handleMarkRead = (id: string | number) => {
-        setNotifications((prev) =>
-            prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-        );
+    const handleNotificationClick = async (item: Notification) => {
+        try {
+            if (!item.read) {
+                await mutationMarkRead.mutateAsync(item.id as string);
+            }
+            const metaData = JSON.parse(item.metaData);
+            switch (item.type as NotificationType) {
+                case NotificationType.LEAD_CREATED:
+                case NotificationType.LEAD_UPDATED:
+                    router.push(`/${role}/leads/view?id=${metaData?.id}`);
+                    break;
+                case NotificationType.CUSTOMER_ASSIGNED:
+                    router.push(`/${role}/customers/${metaData?.id}`);
+                    break;
+                case NotificationType.ACTIVITY_CREATED:
+                    router.push(`/${role}/leads/view?id=${metaData?.lead?.id}`);
+                    break;
+                default:
+                    break;
+            }
+        } catch (error: any) {
+            message.error(error.message || tCommon('failed'));
+        }
     };
 
-    const displayData = notifications.filter(
-        (n) => filter === 'ALL' || (filter === 'UNREAD' && !n.isRead)
-    );
+    const getNotificationContent = (data: Notification) => {
+        try {
+            const metaData = JSON.parse(data.metaData);
+            switch (data.type as NotificationType) {
+                case NotificationType.LEAD_CREATED:
+                    return {
+                        title: t('leadCreatedTitle'),
+                        message: t('leadCreatedMsg', { id: metaData?.id }),
+                    };
+                case NotificationType.LEAD_UPDATED:
+                    return {
+                        title: t('leadUpdatedTitle'),
+                        message: t('leadUpdatedMsg', { id: metaData?.id }),
+                    };
+                case NotificationType.CUSTOMER_ASSIGNED:
+                    return {
+                        title: t('customerAssignedTitle'),
+                        message: t('customerAssignedMsg'),
+                    };
+                case NotificationType.ACTIVITY_CREATED:
+                    return {
+                        title: t('activityCreatedTitle'),
+                        message: t('activityCreatedMsg', { id: metaData?.lead?.id }),
+                    };
+                default:
+                    return { title: data.title, message: data.message };
+            }
+        } catch (error) {
+            return { title: data.title, message: data.message };
+        }
+    };
 
     return (
         <Flex vertical gap={token.marginLG}>
@@ -113,7 +162,7 @@ export default function NotificationsViewPage() {
                     <Button
                         icon={<CheckOutlined />}
                         onClick={handleMarkAllRead}
-                        disabled={!notifications.some(n => !n.isRead)}
+                    // disabled={!notifications.some(n => !n.read)}
                     >
                         {t('markAllRead')}
                     </Button>
@@ -131,26 +180,36 @@ export default function NotificationsViewPage() {
                 }}
             >
                 <List
-                    // size="large"
+                    loading={isLoading || mutationMarkAllRead.isPending || mutationMarkRead.isPending}
                     pagination={{
                         position: 'bottom',
                         align: 'center',
-                        pageSize: 10,
+                        pageSize: size,
+                        current: page + 1,
+                        total: notificationsData?.data.totalElements || 0,
+                        onChange: (page, pageSize) => {
+                            setPage(page - 1);
+                            setSize(pageSize);
+                        },
                         showSizeChanger: true,
                     }}
                     dataSource={displayData}
                     locale={{ emptyText: t('emptyMessage') }}
                     renderItem={(item) => {
                         const meta = getNotificationMeta(item.type, token);
+                        const content = getNotificationContent(item);
                         return (
                             <List.Item
-                                onClick={() => handleMarkRead(item.id)}
-                                className={`transition-colors duration-200 ${item.isRead ? 'hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'
-                                    : ''
-                                    }`}
+                                onClick={() => handleNotificationClick(item)}
+                                className="hover:bg-black/[0.04] dark:hover:bg-white/[0.08] transition-colors duration-200"
                                 style={{
                                     padding: `${token.paddingMD}px ${token.paddingLG}px`,
-                                    cursor: 'pointer',
+                                    cursor: mutationMarkRead.isPending ? 'wait' : 'pointer',
+                                    background: item.read
+                                        ? 'transparent'
+                                        : token.colorPrimaryBg,
+                                    borderBottom: `1px solid ${token.colorBorderSecondary}`,
+                                    alignItems: 'flex-start',
                                 }}
                             >
                                 <List.Item.Meta
@@ -169,10 +228,9 @@ export default function NotificationsViewPage() {
                                     title={
                                         <Flex justify="space-between" align="center" style={{ marginBottom: token.marginXXS }}>
                                             <Typography.Text
-                                                strong={!item.isRead}
-                                            // style={{ fontSize: token.fontSizeLG }}
+                                                strong={!item.read}
                                             >
-                                                {item.title}
+                                                {content.title}
                                             </Typography.Text>
                                             <Typography.Text type="secondary" style={{ fontSize: token.fontSizeSM }}>
                                                 {dayjs(item.createdAt).fromNow()}
@@ -183,16 +241,11 @@ export default function NotificationsViewPage() {
                                         <Flex vertical gap={token.marginXS}>
                                             <Typography.Text
                                                 style={{
-                                                    color: item.isRead ? token.colorTextSecondary : token.colorText,
+                                                    color: item.read ? token.colorTextSecondary : token.colorText,
                                                 }}
                                             >
-                                                {item.message}
+                                                {content.message}
                                             </Typography.Text>
-                                            <Flex gap={token.marginXS}>
-                                                <Tag bordered={false} color="processing">
-                                                    {item.type}
-                                                </Tag>
-                                            </Flex>
                                         </Flex>
                                     }
                                 />

@@ -136,6 +136,14 @@ export default function LeadsDashboard({ role }: { role?: UserRole }) {
         setPage(0); // Reset về trang đầu khi thay đổi filter
     };
 
+    const handleCreateLead = () => {
+        if (role === UserRole.SALE) {
+            router.push(`/${role}/leads/new?assignedToId=${user?.id}`);
+        } else {
+            router.push(`/${role}/leads/new`);
+        }
+    };
+
     return (
         <Flex vertical gap={token.marginLG}>
             {/* Header Toolbar */}
@@ -166,7 +174,7 @@ export default function LeadsDashboard({ role }: { role?: UserRole }) {
                     />
                     <Button
                         type="primary"
-                        onClick={() => router.push(`/${role}/leads/new?assignedToId=${user?.id}`)}
+                        onClick={handleCreateLead}
                     >
                         {tCommon('add new')}
                     </Button>

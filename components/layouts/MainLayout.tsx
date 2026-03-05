@@ -255,7 +255,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, userRole = 'admin' })
                         icon={mode === 'dark' ? <SunOutlined /> : <MoonOutlined />}
                         onClick={toggleTheme}
                     />
-                    {screens.md && <NotificationDropdown role={userRole} />}
+                    <NotificationDropdown role={userRole} />
                     <Dropdown menu={{ items: userMenuItems, onClick: (e) => handleMenuClick(e) }} placement="bottomRight">
                         <Space style={{ cursor: 'pointer' }}>
                             <Avatar size="small" icon={<UserOutlined />} />

@@ -43,7 +43,7 @@ export interface Notification {
     type: NotificationType | string;
     title: string;
     message: string;
-    isRead: boolean;
+    read: boolean;
     metaData: string;
     createdAt: string;
 }
