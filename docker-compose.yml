@@ -1,0 +1,78 @@
+services:
+  crm-client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080/api}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_DEFAULT_ADMIN_EMAIL: ${NEXT_PUBLIC_DEFAULT_ADMIN_EMAIL:-admin@mail.com}
+        NEXT_PUBLIC_DEFAULT_SALE_EMAIL: ${NEXT_PUBLIC_DEFAULT_SALE_EMAIL:-sale@mail.com}
+        NEXT_PUBLIC_DEFAULT_MANAGER_EMAIL: ${NEXT_PUBLIC_DEFAULT_MANAGER_EMAIL:-manager@mail.com}
+    container_name: mini-crm-client
+    ports:
+      - "3000:3000"
+    # environment:
+    #   # API Configuration
+    #   NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001/api}
+    #   NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    #   NEXT_PUBLIC_DEFAULT_ADMIN_EMAIL: ${NEXT_PUBLIC_DEFAULT_ADMIN_EMAIL:-admin@mail.com}
+    #   NEXT_PUBLIC_DEFAULT_SALE_EMAIL: ${NEXT_PUBLIC_DEFAULT_SALE_EMAIL:-sale@mail.com}
+    #   NEXT_PUBLIC_DEFAULT_MANAGER_EMAIL: ${NEXT_PUBLIC_DEFAULT_MANAGER_EMAIL:-manager@mail.com}
+    #   # Optional: WebSocket configuration
+    #   # NEXT_PUBLIC_WS_URL: ws://backend:3001/ws
+    #   NODE_ENV: ${NODE_ENV:-production}
+    env_file:
+      - .env
+    restart: unless-stopped
+    # For development with hot reload, uncomment and use dockerfile.dev
+    # volumes:
+    #   - .:/app
+    #   - /app/node_modules
+    #   - /app/.next
+    # command: pnpm dev
+    networks:
+      - crm-network
+    # Wait for backend to be ready (if using docker-compose for full stack)
+    # depends_on:
+    #   backend:
+    #     condition: service_healthy
+
+  # Uncomment to run with backend service together
+  # backend:
+  #   image: your-crm-backend:latest
+  #   container_name: mini-crm-backend
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     DATABASE_URL: postgresql://user:password@postgres:5432/crm_db
+  #   networks:
+  #     - crm-network
+  #   depends_on:
+  #     - postgres
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+
+  # postgres:
+  #   image: postgres:16-alpine
+  #   container_name: mini-crm-postgres
+  #   environment:
+  #     POSTGRES_USER: crm_user
+  #     POSTGRES_PASSWORD: secure_password
+  #     POSTGRES_DB: crm_db
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - crm-network
+
+networks:
+  crm-network:
+    driver: bridge
+
+# volumes:
+#   postgres_data:

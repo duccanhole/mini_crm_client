@@ -1,14 +1,12 @@
 # CRM Client - Enterprise SaaS Frontend
 
-A production-grade Customer Relationship Management (CRM) client application built with modern frontend technologies. Demonstrates enterprise-scale architecture, clean separation of concerns, and real-world patterns for team collaboration and sales process optimization.
-
-## Project Overview
+## 🚀 Project Overview
 
 This CRM client is designed as a scalable, maintainable frontend for managing complex business processes. It supports three distinct user roles (Admin, Manager, Sales) with granular permission-based access control, enabling teams to efficiently manage customer relationships, track sales activities, and collaborate in real-time.
 
 The architecture emphasizes **separation of concerns**, **API-driven design**, and **maintainable component hierarchy**—patterns essential for production SaaS applications supporting multiple user types and complex workflows.
 
-## Key Features
+## 🌟 Key Features
 
 ### Core Functionality
 - **Multi-role Support**: Role-based access control (RBAC) for Admin, Manager, and Sales roles
@@ -26,7 +24,7 @@ The architecture emphasizes **separation of concerns**, **API-driven design**, a
 - **Type Safety**: Full TypeScript implementation with strict compiler settings
 - **Internationalization**: Multi-language support (en, vi) with locale-aware routing
 
-## Tech Stack
+## 🛠 Tech Stack
 
 | Layer | Technology | Version | Purpose |
 |-------|-----------|---------|---------|
@@ -48,7 +46,7 @@ The architecture emphasizes **separation of concerns**, **API-driven design**, a
 - **Next.js App Router**: Modern routing with built-in middleware support and optimized performance
 - **Type-safe stack**: Reduces runtime errors and improves maintainability for large teams
 
-## Architecture Overview
+## 🏗 Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -118,7 +116,7 @@ The architecture emphasizes **separation of concerns**, **API-driven design**, a
 - Client state in component/context where needed
 - Optimized for CRM workflows (paginated lists, detail views)
 
-## Folder Structure
+## 📂 Folder Structure
 
 ```
 mini_crm_client/
@@ -216,7 +214,7 @@ mini_crm_client/
 └── package.json                 # Dependencies & scripts
 ```
 
-## Core Modules
+## 📦 Core Modules
 
 ### Authentication Module (`hooks/api/useAuth.ts`)
 
@@ -258,8 +256,6 @@ Provides complete lead CRUD operations tied to customer records:
 
 Centralized customer database with:
 - Customer profile and company information
-- Communication history (calls, emails, meetings)
-- Activity timeline
 - Sales rep assignment
 - Account metadata and notes
 
@@ -305,265 +301,57 @@ Enforced at three levels:
 2. **Component**: UI element visibility
 3. **API**: Backend validation
 
-## Getting Started
+## 🚀 How to run project
 
-### Prerequisites
+### Backend Requirement
+
+**Note:** This project requires a separate backend CRM API service to function. You must clone [CRM backend](https://github.com/duccanhole/mini_crm_server) and run locally for full functionality.
+ - The backend project includes a complete README with setup instructions.
+ - Update the API URL in your environment variables to point to your backend instance.
+
+### Run with Docker
+
+For instructions on how to run the application using Docker, please refer to [docs/DOCKER.md](docs/DOCKER.md).
+
+### Run Locally
+
+#### Prerequisites
 
 - **Node.js** 18+ (v20 recommended)
 - **pnpm** 8+ (or npm/yarn as alternatives)
 
-### Installation
+#### Installation
 
 ```bash
-# Clone repository
-git clone <repository-url>
-cd mini_crm_client
-
 # Install dependencies
 pnpm install
-
-# Or with npm
-npm install
 ```
 
-### Development Server
+#### Development
 
 ```bash
 pnpm dev
 ```
 
-Starts development server at `http://localhost:3000`
-
 - **Hot Module Reloading**: Changes reflect instantly
 - **React Query DevTools**: Debug query states via panel
 - **TypeScript**: Full type checking during development
 
-### Build for Production
+
+## ⚙️ Environment Variables
+
+Create a `.env` file in the project root follow `.env.example` template:
 
 ```bash
-# Build optimized bundle
-pnpm build
-
-# Start production server
-pnpm start
-```
-
-### Linting
-
-```bash
-# Run ESLint on all files
-pnpm lint
-```
-
-## Environment Variables
-
-Create a `.env.local` file in the project root:
-
-```env
-# API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
-
-# Optional: WebSocket for real-time notifications
-# NEXT_PUBLIC_WS_URL=ws://localhost:3001/ws
-
-# Deployment
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+# Copy example
+# cp .env.example .env
 ```
 
 **Important notes**:
 - Variables prefixed with `NEXT_PUBLIC_` are exposed to the browser
 - Token management is handled via middleware and cookies
-- `.env.local` should be added to `.gitignore`
 
-## API Integration
-
-### Axios Client with Interceptors (`lib/api-client.ts`)
-
-Provides a centralized HTTP client with automatic JWT injection:
-
-```typescript
-import apiClient from '@/lib/api-client';
-
-// Automatically includes Authorization header with token
-const response = await apiClient.get('/leads');
-```
-
-**Request Interceptor**:
-- Retrieves JWT token from cookies
-- Injects `Authorization: Bearer {token}` header
-- Handles token expiration gracefully
-
-**Response Interceptor**:
-- Centralizes error handling
-- Auto-redirects to login on 401/403
-- Clears auth state on unauthorized access
-- Formats error messages for UI
-
-### Service Layer Pattern
-
-Each domain has a dedicated service file:
-
-```typescript
-// services/lead.service.ts
-const LeadService = {
-  getLeads: async (params) => apiClient.get('/leads', { params }),
-  getLeadById: async (id) => apiClient.get(`/leads/${id}`),
-  createLead: async (data) => apiClient.post('/leads', data),
-  updateLead: async (id, data) => apiClient.patch(`/leads/${id}`, data),
-  deleteLead: async (id) => apiClient.delete(`/leads/${id}`),
-};
-```
-
-Benefits:
-- **Reusability**: Called from hooks and components
-- **Maintainability**: Centralized endpoint management
-- **Testability**: Easy to mock for unit tests
-
-### React Query Integration (`hooks/api/`)
-
-Custom hooks wrap React Query for semantic APIs:
-
-```typescript
-export const useLeadList = (filters) => {
-  return useQuery({
-    queryKey: ['leads', filters],
-    queryFn: () => LeadService.getLeads(filters),
-  });
-};
-
-// In components
-const { data, isLoading, error } = useLeadList({ status: 'NEW' });
-```
-
-**Benefits**:
-- Automatic caching and background refetching
-- Optimistic updates support
-- Built-in loading/error states
-- Integrated with Ant Design message/notification
-
-## Development Guidelines
-
-### Component Architecture
-
-**Layers**:
-1. **Page Components** (`app/[locale]/*/page.tsx`): Route handlers
-2. **Layout Components** (`components/pages/*`): Page logic and state
-3. **UI Components** (`components/*`): Reusable, presentational
-4. **Provider Components** (`components/providers/*`): Context wrappers
-
-**Example**:
-```typescript
-// Page component (route handler)
-export default function LeadsPage() {
-  return <LeadsLayout />;
-}
-
-// Layout component (business logic)
-function LeadsLayout() {
-  const { data, isLoading } = useLeadList();
-  return <LeadListView leads={data} />;
-}
-
-// UI component (presentational)
-function LeadListView({ leads }) {
-  return <Table dataSource={leads} />;
-}
-```
-
-### Data Flow
-
-```
-Component → React Query Hook → Service Layer → API Client
-     ↓                                          ↓
-  UI State                            REST API Backend
-```
-
-### Type Safety
-
-Project uses **strict TypeScript** configuration:
-- `strict: true` in `tsconfig.json`
-- `noImplicitAny` enabled
-- All API responses typed via `types/api.ts`
-
-**Example**:
-```typescript
-interface Lead {
-  id: string;
-  customer: Customer;
-  value: number;
-  status: LeadStatus;
-  assignedTo: User;
-  expectedCloseDate: string;
-}
-
-// Type-checked API calls
-const { data: leads } = useLeadList(); // leads: Lead[] | undefined
-```
-
-### Form Validation
-
-Ant Design Form with integrated validation (`lib/validation.ts`):
-
-```typescript
-form.validateFields(['email', 'name']).then(values => {
-  // values are typed and validated
-});
-```
-
-### Internationalization
-
-Language switching via `next-intl`:
-
-```typescript
-import { useTranslations } from 'next-intl';
-
-export default function Component() {
-  const t = useTranslations('common');
-  return <h1>{t('welcome')}</h1>;
-}
-```
-
-Supports English (en) and Vietnamese (vi) with locale-aware routing:
-- `/en/admin/leads` → English UI
-- `/vi/admin/leads` → Vietnamese UI
-
-### Authentication Flow
-
-```
-User Input Login Credentials
-         ↓
-    useLogin() Hook
-         ↓
-    AuthService.login(credentials)
-         ↓
-    API Client (POST /auth/login)
-         ↓
-    Middleware Extracts Token
-         ↓
-    Token → HTTP-Only Cookie
-         ↓
-    Redirect by Role: /admin, /manager, or /sale
-```
-
-**Security considerations**:
-- Token stored in HTTP-only cookie (immune to XSS)
-- Middleware validates token before route access
-- 401/403 responses trigger re-authentication
-- Role propagated server-side for SSR safety
-
-### State Management
-
-**Server State** (React Query):
-- Lists, detail views, paginated data
-- Automatic refetching and caching
-- Persistent across navigation
-
-**Client State** (Component/Context):
-- UI state (modals, dropdowns)
-- Form values (before submission)
-- Language/theme preferences
-
-## Future Improvements
+## 🛠️ Future Improvements
 
 ### Real-time Collaboration
 - **WebSocket Integration**: Replace polling with bidirectional updates
@@ -584,22 +372,9 @@ User Input Login Credentials
 - **E2E Tests**: Playwright for critical user flows
 - **Performance Monitoring**: Web Vitals tracking
 
-## License
+## 📄 License
 
 This project is private and intended for portfolio demonstration purposes. 
 
 If used in a production setting, ensure compliance with your organization's licensing requirements and data protection regulations (GDPR, data handling, etc.)
 
----
-
-## Contributing
-
-This is a portfolio project. For contributions or questions, please reach out directly.
-
-## Support
-
-For issues or feature requests related to the frontend architecture, refer to project documentation in `/docs` or contact the maintainer.
-
----
-
-**Last Updated**: March 2026
