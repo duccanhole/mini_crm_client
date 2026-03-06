@@ -28,7 +28,9 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     // Ví dụ: Tự động redirect về login nếu 401
-    if (error.response?.status === 401 || error.response?.status === 403) {
+    const path = window.location.pathname;
+    const isAuthPage = path.includes('login') || path.includes('register')
+    if ((error.response?.status === 401 || error.response?.status === 403) && !isAuthPage) {
       if (typeof window !== 'undefined') {
         Cookies.remove('token');
         localStorage.removeItem('user');

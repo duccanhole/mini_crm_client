@@ -23,7 +23,7 @@ const AuthService = {
   },
 
   setDefaultAccount: async () => {
-    const response = await apiClient.post('/auth/default-account');
+    const response = await apiClient.post('/auth/set-default-account');
     return response.data;
   }
 };

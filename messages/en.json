@@ -166,10 +166,11 @@
   "msg": {
     "Email already exists": "Email already exists",
     "Phone number already exists": "Phone number already exists",
-    "Invalid credentials": "Invalid credentials",
+    "Invalid credentials": "Wrong email or password",
     "Registration successful": "Registration successful, please login to continue",
     "unauthorized": "Please login to continue",
-    "permission denied": "You do not have permission to access this page."
+    "permission denied": "You do not have permission to access this page.",
+    "User account is not active": "User account is currently not active. Please contact the administrator for more information."
   },
   "common": {
     "add new": "Add new",
@@ -198,6 +199,7 @@
     "all": "All",
     "viewDetail": "View Detail",
     "view": "View",
-    "fromLastMonth": "from last month"
+    "fromLastMonth": "from last month",
+    "currencySuffix": "₫"
   }
 }

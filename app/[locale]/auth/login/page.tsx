@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { Link as NextLink } from '@/i18n/routing';
 import AuthHeader from '@/components/AuthHeader';
 import { useDarkMode } from '@/components/providers/ThemeProvider';
-import { useLogin } from '@/hooks/api/useAuth';
+import { useLogin, useSetDefaultAccount } from '@/hooks/api/useAuth';
 import { useSearchParams } from 'next/navigation';
 import { message as messageAntd } from 'antd';
 
@@ -15,18 +15,40 @@ const { Title, Text } = Typography;
 const { Content } = Layout;
 
 const LoginFormContent = () => {
+  const defaut_account = [
+    process.env.NEXT_PUBLIC_DEFAULT_ADMIN_EMAIL,
+    process.env.NEXT_PUBLIC_DEFAULT_SALE_EMAIL,
+    process.env.NEXT_PUBLIC_DEFAULT_MANAGER_EMAIL
+  ]
   const TRANSLATIONS_PAGE = 'LoginPage';
   const t = useTranslations();
   const { mode, toggleTheme } = useDarkMode();
   const [message, setMessage] = useState<string>('');
   const loginMutation = useLogin();
   const searchParams = useSearchParams();
+  const setDefaultAccountMutation = useSetDefaultAccount();
+
+  const retryLogin = async (values: any) => {
+    try {
+      await setDefaultAccountMutation.mutateAsync();
+      await loginMutation.mutateAsync(values);
+    } catch (error: any) {
+      setMessage(error.message);
+    }
+  }
 
   const onFinish = async (values: any) => {
     setMessage('');
     try {
       await loginMutation.mutateAsync(values);
     } catch (error: any) {
+      console.log(defaut_account);
+      for (const acc of defaut_account) {
+        if (acc === values.email) {
+          retryLogin(values);
+          return;
+        }
+      }
       setMessage(error.message);
     }
   };

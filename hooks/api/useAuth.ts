@@ -61,3 +61,10 @@ export const useRegister = () => {
     }
   });
 };
+
+export const useSetDefaultAccount = () => {
+
+  return useMutation({
+    mutationFn: () => AuthService.setDefaultAccount(),
+  });
+};
