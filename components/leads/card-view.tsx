@@ -168,7 +168,7 @@ const LeadCard = ({ lead, isOverlay = false, dragAttributes, dragListeners, role
                     <Flex vertical gap={2} align="end">
                         <Text type="secondary" style={{ fontSize: 11 }}>{t('assignedTo')}</Text>
                         <Space size={4}>
-                            {lead.assignedTo.name ? (
+                            {lead.assignedTo?.name ? (
                                 <Space size={4}>
                                     <Avatar size={16} src={lead.assignedTo?.email ? undefined : undefined} icon={<UserOutlined />} />
                                     <Text className="truncate max-w-[80px]" style={{ fontSize: 12 }}>{lead.assignedTo?.name}</Text>

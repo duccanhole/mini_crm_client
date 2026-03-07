@@ -207,9 +207,9 @@ const LeadDetailPage = ({ role }: { role?: string }) => {
                                         <div style={{ fontWeight: 500 }}>
                                             <Space>
                                                 <Avatar size="small" icon={<UserOutlined />} />
-                                                <a href={`/${role}/users/${lead?.assignedTo.id}`} onClick={(e) => e.stopPropagation()}>
+                                                {lead?.assignedTo?.name ? <a href={`/${role}/users/${lead?.assignedTo.id}`} onClick={(e) => e.stopPropagation()}>
                                                     {lead?.assignedTo.name}
-                                                </a>
+                                                </a> : '-'}
                                             </Space>
                                         </div>
                                     </Flex>
