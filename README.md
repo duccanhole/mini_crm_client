@@ -8,13 +8,9 @@ The architecture emphasizes **separation of concerns**, **API-driven design**, a
 
 ## Screenshots
 
-<p align="center">
-  <img src="screenshots/Overview.png" width="700"><br>
-  <img src="screenshots/Leads.png" width="700"><br>
-  <img src="screenshots/Customers.png" width="700"><br>
-  <img src="screenshots/LeadDetail.png" width="700"><br>
-  <img src="screenshots/Notifications.png" width="700">
-</p>
+| Dashboard | Leads | Customers | Lead Detail | Notifications |
+|----------|-------|-----------|-------------|---------------|
+| ![](screenshots/Overview.png) | ![](screenshots/Leads.png) | ![](screenshots/Customers.png) | ![](screenshots/LeadDetail.png) | ![](screenshots/Notifications.png) |
 
 ## 🌟 Key Features
 
