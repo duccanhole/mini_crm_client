@@ -6,7 +6,7 @@ This CRM client is designed as a scalable, maintainable frontend for managing co
 
 The architecture emphasizes **separation of concerns**, **API-driven design**, and **maintainable component hierarchy**—patterns essential for production SaaS applications supporting multiple user types and complex workflows.
 
-## Screenshots
+## 📸 Screenshots
 
 | Dashboard | Leads | Customers | Lead Detail | Notifications |
 |----------|-------|-----------|-------------|---------------|
