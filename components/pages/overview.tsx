@@ -83,7 +83,7 @@ export default function OverviewPage() {
         background: `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${token.colorFillAlter} 100%)`,
     };
 
-    const conversionRate = (countLeadsWin?.data ?? 0) / (countLeadsTotal?.data ?? 1) * 100;
+    const conversionRate = (countLeadsWin?.data ?? 0) / (Math.max(countLeadsTotal?.data ?? 1, 1)) * 100;
 
     const { data, refresh } = useChartData();
 
