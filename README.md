@@ -222,7 +222,7 @@ mini_crm_client/
 
 ## 📦 Core Modules
 
-### Authentication Module (`hooks/api/useAuth.ts`)
+### Authentication Module 
 
 Handles user login, registration, and logout with role-based routing:
 
@@ -248,7 +248,7 @@ login(
 - Secure cookie-based token storage
 - Error boundary handling
 
-### Lead Management Module (`services/lead.service.ts`)
+### Lead Management Module 
 
 Provides complete lead CRUD operations tied to customer records:
 
