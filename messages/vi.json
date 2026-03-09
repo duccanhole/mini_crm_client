@@ -1,4 +1,4 @@
-{
+﻿{
   "LoginPage": {
     "title": "Đăng nhập",
     "welcome": "Chào mừng bạn quay trở lại!",
@@ -113,7 +113,8 @@
     "phone": "Số điện thoại",
     "role": "Vai trò",
     "status": "Trạng thái",
-    "updateStatus": "Cập nhật thông tin"
+    "updateStatus": "Cập nhật thông tin",
+    "save": "Lưu"
   },
   "ChangePasswordPage": {
     "title": "Đổi mật khẩu",

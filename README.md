@@ -343,6 +343,13 @@ pnpm dev
 - **React Query DevTools**: Debug query states via panel
 - **TypeScript**: Full type checking during development
 
+#### Testing
+
+```bash
+# Run unit tests
+pnpm test
+```
+
 
 ## ⚙️ Environment Variables
 
@@ -373,7 +380,7 @@ Create a `.env` file in the project root follow `.env.example` template:
 - **Custom Fields**: Dynamic schema for flexible data models
 
 ### Testing & Quality
-- **Unit Tests**: Jest for utilities, hooks, services
+- **Unit Tests**: Vitest for utilities and i18n configs/messages (expand coverage to hooks/services)
 - **Integration Tests**: React Testing Library for components
 - **E2E Tests**: Playwright for critical user flows
 - **Performance Monitoring**: Web Vitals tracking
@@ -383,4 +390,3 @@ Create a `.env` file in the project root follow `.env.example` template:
 This project is private and intended for portfolio demonstration purposes. 
 
 If used in a production setting, ensure compliance with your organization's licensing requirements and data protection regulations (GDPR, data handling, etc.)
-
